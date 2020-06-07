@@ -54,6 +54,8 @@
     "@ant-design/icons": "^4.0.0",
     "@ant-design/pro-layout": "^5.0.8",
     "@ant-design/pro-table": "2.2.9",
+    "@types/mongodb": "^3.5.20",
+    "@types/mongoose": "^5.7.22",
     "antd": "4.2.5",
     "classnames": "^2.2.6",
     "electron": "^9.0.2",

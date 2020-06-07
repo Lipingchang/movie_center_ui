@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { connect, DispatchProp } from 'dva';
 import { ConnectState } from '@/models/connect';
-import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { message, Card, Form, Input, Button, Spin, List, Typography, Popconfirm } from 'antd';
 import { useForm } from 'antd/es/form/util';
 import {
   saveSingleFilesToCollection,
   saveScanResult,
   loadScanResult,
-  ScanResultType,
   removeScanResult,
-} from '@/utils/connect_db';
+} from '@/utils/DiskScanDB/dao';
+import {
+  ScanResultType,
+} from '@/utils/DiskScanDB/bean'
 
 type Props = {
   movieFilePaths: Array<string>;
