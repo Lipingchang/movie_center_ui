@@ -32,12 +32,22 @@ export default defineConfig({
       routes: [
         {
           path: '/',
-          redirect: '/welcome',
+          redirect: '/serialno',
+        },
+        {
+          path: '/prefixcutter',
+          name: 'PrefixCutter',
+          component: './PrefixCutter/PrefixCutter.tsx',
+        },
+        {
+          path: '/serialno',
+          name: 'SerialNo',
+          component: './SerialNo/SerialNo.tsx',
         },
         {
           path: '/diskscan',
-          name: 'DiskScan',
-          component: './DiskScan/DiskScan.tsx'
+          name: 'diskscan',
+          component: './diskscan/diskscan.tsx',
         },
         {
           path: '/welcome',

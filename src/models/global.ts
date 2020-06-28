@@ -32,12 +32,12 @@ const GlobalModel: GlobalModelType = {
         mongoose,
       }
     },
-    // changeLayoutCollapsed(state = { collapsed: true }, { payload }): GlobalModelState {
-    //   return {
-    //     ...state,
-    //     collapsed: payload,
-    //   };
-    // },
+    changeLayoutCollapsed(state = { collapsed: true }, { payload }): GlobalModelState {
+      return {
+        ...state,
+        collapsed: payload,
+      };
+    },
   },
 
   subscriptions: {

@@ -64,8 +64,31 @@ function pickOutFiles(rootPath: string): Array<string> {
   return files;
 }
 
+// 拿出本级文件夹下所有的文件
+export function pickOutFilesOneLevel(rootPath: string): Array<string> {
+  let dirents;
+  try {
+    dirents = fs.readdirSync(rootPath, { withFileTypes: true });
+  } catch (e) {
+    return [];
+  }
+  // let nextFolders = []; // 下一级文件夹
+  let files = []; // 本级中的文件
+  for (let dirent of dirents) {
+    if (dirent.isDirectory()) {
+      // nextFolders.push(dirent);
+    } else if (dirent.isFile()) {
+      files.push(path.join(rootPath, dirent.name));
+    }
+  }
+  // for (let folder of nextFolders) {
+  //   files = files.concat(pickOutFiles(path.join(rootPath, folder.name)));
+  // }
+  return files;
+}
+
 // 拿出后缀在后缀列表中的文件
-function pickOutMoives(filePaths: Array<string>, suffixes: Array<string>):Array<string> {
+export function pickOutMoives(filePaths: Array<string>, suffixes: Array<string>):Array<string> {
   return filePaths.filter((value)=>{
     const suffix = value.split('.').pop();
     if (suffix===undefined) return false;

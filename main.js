@@ -6,9 +6,10 @@ function createWindow () {
     width: 960,
     height: 540,
     x:0,
-    y:0,
+    y:20,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      webSecurity: false,
     }
   })
 

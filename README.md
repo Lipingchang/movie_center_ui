@@ -11,6 +11,11 @@ src/pages/下面
 - 录入数据库
 
 # TODO
+- 去片头
+  - 文件夹
+  - 文件 - 片头截图
+  - 输入去掉时长
+  - 批量运行截断操作
 - 分离serialNo
 - 关联`扫描`和`serialNo`
 ```mermaid
