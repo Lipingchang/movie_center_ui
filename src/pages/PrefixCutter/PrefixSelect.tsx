@@ -15,6 +15,7 @@ export const prefixTypeList = [
   '澳门巴黎人',
   '澳门顶级赌场',
   '凤凰',
+  '长-凤凰',
   '狐狸+为你而骚',
   'pornhub',
   '每日更新50b',
@@ -22,7 +23,7 @@ export const prefixTypeList = [
   '狐狸视频',
   'none',
 ];
-export const prefixLengthList = [29, 110, 192, 105, 4, 69, 82, 100, 0];
+export const prefixLengthList = [29, 110, 192, 200 ,109, 4, 69, 85, 100, 0];
 const prefixOpt = prefixTypeList.map((key, index) => {
   return {
     label: key,
@@ -36,23 +37,24 @@ type Props = {
   onChange?: (e: RadioChangeEvent) => void;
 } & ConnectState;
 
-class PrefixSelect extends React.Component<Props> {
+class PrefixSelect extends React.PureComponent<Props> {
+  // value = 0;
   constructor(props: Props) {
     super(props);
-    this.state ={
-      value: props.value
-    }
+    // this.value = props.value
   }
-  // 加快长列表渲染
-  shouldComponentUpdate(nextProps, nextState) {
-    if (nextProps.value===this.state.value) {
-      return false;
-    }
-    this.setState({
-      value: nextProps.value
-    })
-    return true;
-  }
+  // // 加快长列表渲染 TODO 代码有问题, bug 改不了....
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   if (nextProps.value===this.value) {
+  //     // console.log('false!')
+  //   console.log('false','from',this.value,'to',nextProps.value,'current',this.props.value)
+  //     return false;
+  //   }
+  //   // console.log('true', nextProps.value, this.props.value, this.value)
+  //   console.log('true','from',this.value,'to',nextProps.value,'current',this.props.value)
+  //   this.value = nextProps.value
+  //   return true;
+  // }
 
   render() {
     return (

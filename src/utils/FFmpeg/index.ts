@@ -38,20 +38,17 @@ export function ScreenShot(filePath: string, ss: number, forceLoad = false): Pro
     const minutes = parseInt(ss / 60) % 60;
     const seconds = ss % 60;
     const dirname = path.dirname(filePath);
-    const imageDirPath = path.join(dirname, ImageDirName)
-    const imagePath = path.join(
-      imageDirPath,
-      `${path.basename(filePath)}.jpg`,
-    ); 
+    const imageDirPath = path.join(dirname, ImageDirName);
+    const imagePath = path.join(imageDirPath, `${path.basename(filePath)}.jpg`);
 
     // 创建 保存图片的文件夹
     if (!fs.existsSync(imageDirPath)) {
-      fs.mkdirSync(imageDirPath)
+      fs.mkdirSync(imageDirPath);
     }
 
     // 有图片存在, 就不继续执行
     if (fs.existsSync(imagePath) && !forceLoad) {
-      console.log('exist:',imagePath)
+      console.log('exist:', imagePath);
       resolve(imagePath);
       return;
     }
@@ -72,6 +69,17 @@ export function ScreenShot(filePath: string, ss: number, forceLoad = false): Pro
   });
 }
 
+export function DeleteFile(filePath: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
+}
 export function CutPrefix(filePath: string, ss: number): Promise<string> {
   return new Promise((resolve, reject) => {
     const hours = parseInt(ss / 3600) % 60;

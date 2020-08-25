@@ -1,14 +1,15 @@
 import React from 'react';
 import { ConnectState } from '@/models/connect';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Button, Card, Form, Input, List, message, Typography } from 'antd';
+import { Button, Card, Form, Input, List, message, Typography, Spin } from 'antd';
 import { FormInstance } from 'antd/lib/form/Form';
 import { pickOutFilesOneLevel, pickOutMoives } from '@/models/DiskScanUtils';
-import { ScreenShot, loadBase64ImageFiles, CutPrefix } from '@/utils/FFmpeg';
+import { ScreenShot, loadBase64ImageFiles, CutPrefix, DeleteFile } from '@/utils/FFmpeg';
 import electron from 'electron';
 import SuffixPicker, { movieSuffixList } from '@/components/SuffixPicker';
 import PrefixSelect from './PrefixSelect';
 import { PresistClassStateType, PresistClass } from '@/utils/presist';
+// import { DeleteFilled } from '@ant-design/icons';
 
 const dialog: typeof electron.remote.dialog = window.require('electron').remote.dialog;
 
@@ -25,6 +26,8 @@ type StateType = {
   movieItems: Array<MovieItem>;
   db: IDBDatabase;
   imageCache: any; // 存从 indexDB 拿出来的照片
+  loading: boolean;
+  cutMovieItems: Array<MovieItem>;
 } & PresistClassStateType;
 class PrefixCutter extends PresistClass {
   formRef = React.createRef<FormInstance>();
@@ -34,6 +37,8 @@ class PrefixCutter extends PresistClass {
     storageKey: 'PrefixCutter',
     db: null,
     imageCache: {},
+    loading: false,
+    cutMovieItems: [],
   };
   constructor(props: PropsType) {
     super(props);
@@ -63,7 +68,12 @@ class PrefixCutter extends PresistClass {
 
   // 去除/添加 不缓存的内容
   componentWillUnmount() {
-    this.saveStateToCache({ ...this.formRef.current?.getFieldsValue(), imageCache: {}, db: {} });
+    this.saveStateToCache({
+      ...this.formRef.current?.getFieldsValue(),
+      imageCache: {},
+      db: {},
+      cutMovieItems: [],
+    });
   }
 
   // 调用文件管理器 选择一个文件夹
@@ -83,6 +93,12 @@ class PrefixCutter extends PresistClass {
       });
   };
 
+  setLoading = (a = true) => {
+    this.setState({
+      loading: a,
+    });
+  };
+
   // 从文件中load文件列表
   loadFiles = (force = false) => {
     const { rootPath, suffixList } = this.formRef.current.getFieldsValue();
@@ -93,6 +109,7 @@ class PrefixCutter extends PresistClass {
     const movieItems: Array<MovieItem> = [];
 
     new Promise((resolve, reject) => {
+      this.setLoading(true);
       // 用Promise等待全部ffmpeg执行完成
       let count = 0;
       files.map((filePath, index) => {
@@ -142,17 +159,43 @@ class PrefixCutter extends PresistClass {
       })
       .catch((err) => {
         console.error(err);
+      })
+      .finally(() => {
+        this.setLoading(false);
       });
   };
 
   // 过滤出 cutLength不为0的电影
   filterMovies = () => {
     const cutMovieItems = this.state.movieItems.filter((item) => item.cutLength !== 0);
+    this.setState({
+      cutMovieItems,
+    });
     // TODO 耗时操作保存操作中间变量
-    console.log(cutMovieItems);
+    // console.log(cutMovieItems);
+  };
+
+  // 批量裁剪视频
+  doCutMovies = () => {
+    const that = this;
+    let cutMovieItems = this.state.cutMovieItems; // this.state.movieItems.filter((item) => item.cutLength !== 0);
     async function pLoop() {
-      for (let i = 0; i < cutMovieItems.length; i++) {
-        await CutPrefix(cutMovieItems[i].moviePath, cutMovieItems[i].cutLength);
+      const originItems = cutMovieItems;
+      for (let i = 0; i < originItems.length; i++) {
+        try {
+          await CutPrefix(originItems[i].moviePath, originItems[i].cutLength);
+          cutMovieItems = cutMovieItems.filter((item) => item.imageId !== originItems[i].imageId);
+          // const cutMovieItems = originItems
+          //   .slice(0, i)
+          //   .concat(originItems.slice(i + 1, originItems.length));
+          originItems[i].cutLength = 0;// 设置已经剪辑视频的 长度归零
+          await DeleteFile(originItems[i].moviePath)
+          that.setState({
+            cutMovieItems,
+          });
+        } catch (e) {
+          console.error(originItems[i].moviePath, e);
+        }
       }
     }
     pLoop();
@@ -193,15 +236,23 @@ class PrefixCutter extends PresistClass {
         return loadBase64ImageFiles(movieItems.map((item) => item.imagePath));
       })
       .then((images) => {
-        // 把图片放到img中
-        console.log(images);
-        for (let i = 0; i < movieItems.length; i++) {
-          movieItems[i].image = images[i];
+        const that = this;
+        // 把图片保存到数据库中
+        // TODO 删去原有的
+        async function loop() {
+          const imageCache = {}; // 同时缓存入内存
+          for (let i = 0; i < images.length; i++) {
+            const res = await that.savePicToIndexDB(images[i]);
+            movieItems[i].imageId = res.target.result;
+            imageCache[res.target.result] = images[i];
+          }
+          that.setState({
+            movieItems: movieItems,
+            imageCache: imageCache,
+          });
+          return Promise.resolve();
         }
-        this.setState({
-          movieItems: movieItems,
-        });
-        // setMovieItems(movieItems);
+        return loop();
       })
       .catch((err) => {
         console.error(err);
@@ -230,6 +281,9 @@ class PrefixCutter extends PresistClass {
               >
                 <Input />
               </Form.Item>
+            </Form>
+
+            <Spin spinning={this.state.loading}>
               <Button
                 onClick={() => {
                   this.chooseFolder();
@@ -255,21 +309,77 @@ class PrefixCutter extends PresistClass {
               </Button>
               <Button
                 onClick={() => {
-                  this.loadPicToMemory()?.then((res) =>
-                    this.setState({
-                      imageCache: res,
-                    }),
-                  );
+                  this.setLoading(true);
+                  this.loadPicToMemory()
+                    ?.then((res) =>
+                      this.setState({
+                        imageCache: res,
+                      }),
+                    )
+                    .finally(() => {
+                      this.setLoading(false);
+                    });
                 }}
               >
                 load Pic(from db)
               </Button>
-            </Form>
 
+              <List
+                itemLayout="horizontal"
+                size="large"
+                dataSource={movieItems}
+                renderItem={(item, itemIndex) => (
+                  <List.Item
+                    key={item.imagePath}
+                    extra={
+                      <img
+                        style={{ maxWidth: '20%' }}
+                        alt={item.imagePath}
+                        src={`data:image/png;base64,${
+                          this.state.imageCache[item.imageId] || item.image
+                        }`}
+                      />
+                    }
+                  >
+                    <Typography
+                      style={{
+                        textOverflow: 'ellipsis',
+                        width: '40%',
+                        minWidth: '100px',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Typography.Paragraph>{item.moviePath}</Typography.Paragraph>
+                      <Typography.Paragraph>{item.imagePath}</Typography.Paragraph>
+                    </Typography>
+                    <PrefixSelect
+                      value={item.cutLength}
+                      onChange={(e) => {
+                        item.cutLength = e.target.value;
+                        movieItems[itemIndex] = {
+                          ...item,
+                        };
+                        console.log(itemIndex, item.cutLength);
+                        this.setState({
+                          movieItems: [...movieItems],
+                        });
+                      }}
+                    />
+                  </List.Item>
+                )}
+              />
+            </Spin>
+          </Card>
+          <Card title="cut">
+            <Button onClick={this.filterMovies}>filter need cut movies</Button>
+            <Button onClick={this.previewCut}>preview Cut</Button>
+            <Button danger onClick={this.doCutMovies}>
+              do cut
+            </Button>
             <List
               itemLayout="horizontal"
               size="large"
-              dataSource={movieItems}
+              dataSource={this.state.cutMovieItems}
               renderItem={(item, itemIndex) => (
                 <List.Item
                   key={item.imagePath}
@@ -301,6 +411,7 @@ class PrefixCutter extends PresistClass {
                       movieItems[itemIndex] = {
                         ...item,
                       };
+                      console.log(itemIndex, item.cutLength);
                       this.setState({
                         movieItems: [...movieItems],
                       });
@@ -309,10 +420,6 @@ class PrefixCutter extends PresistClass {
                 </List.Item>
               )}
             />
-          </Card>
-          <Card title="cut">
-            {/* <Button onClick={this.filterMovies}>filter need cut movies</Button> */}
-            <Button onClick={this.previewCut}>preview Cut</Button>
           </Card>
         </PageHeaderWrapper>
       </>
