@@ -56,11 +56,13 @@ function ScanResultPicker(props: Props) {
   useEffect(() => {
     load();
   }, [props.dispatch]);
+
   const radioStyle = {
     display: 'block',
     height: '30px',
     lineHeight: '30px',
   };
+
   return (
     <>
       <Card title="往期扫描结果" extra={<Button onClick={load}>reload</Button>}>

@@ -9,6 +9,7 @@ import electron from 'electron';
 import SuffixPicker, { movieSuffixList } from '@/components/SuffixPicker';
 import PrefixSelect from './PrefixSelect';
 import { PresistClassStateType, PresistClass } from '@/utils/presist';
+import { DoubleRightOutlined } from '@ant-design/icons';
 // import { DeleteFilled } from '@ant-design/icons';
 
 const dialog: typeof electron.remote.dialog = window.require('electron').remote.dialog;
@@ -291,6 +292,7 @@ class PrefixCutter extends PresistClass {
               >
                 choose folder
               </Button>
+              <DoubleRightOutlined />
               <Button
                 type="primary"
                 onClick={() => {
@@ -299,6 +301,7 @@ class PrefixCutter extends PresistClass {
               >
                 load files from disk
               </Button>
+              <DoubleRightOutlined />
               <Button
                 danger
                 onClick={() => {
@@ -307,6 +310,7 @@ class PrefixCutter extends PresistClass {
               >
                 Force load files from disk(will do ffmpeg proc)
               </Button>
+              <DoubleRightOutlined />
               <Button
                 onClick={() => {
                   this.setLoading(true);

@@ -90,6 +90,8 @@ export function pickOutFilesOneLevel(rootPath: string): Array<string> {
 // 拿出后缀在后缀列表中的文件
 export function pickOutMoives(filePaths: Array<string>, suffixes: Array<string>):Array<string> {
   return filePaths.filter((value)=>{
+    const basename = path.basename(value);
+    if(basename.startsWith('.')) return false;
     const suffix = value.split('.').pop();
     if (suffix===undefined) return false;
     return suffixes.map(suffix=>suffix.toUpperCase()).includes(suffix.toUpperCase());
