@@ -4,7 +4,7 @@ const mongoose: typeof fakemongoose = window.require('mongoose');
 
 export type ScanResultType = {
   _id: ObjectID;
-  timestamp: Date;
+  timestamp: String; //Date;
   rootPath: string;
   filePaths: Array<string>;
   fileCount: number;
@@ -14,7 +14,7 @@ export type ScanResultType = {
 };
 // 各个扫描摘要
 export const ScanResultSchema = new mongoose.Schema({
-  timestamp: { type: Date, default: Date.now }, // 扫描日期
+  timestamp: String, //{ type: Date, default: Date.now }, // 扫描日期
   rootPath: String, // 根目录
   filePaths: [String], // 所有文件 列表
   fileCount: Number,

@@ -2,7 +2,7 @@ import React, { useReducer, useEffect, useState } from 'react';
 import { connect, DispatchProp } from 'dva';
 import { ConnectState } from '@/models/connect';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Card, Form, Input } from 'antd';
+import { Card, Form, Input, Typography } from 'antd';
 import Button from 'antd/es/button';
 import Checkbox from 'antd/es/checkbox';
 import electron from 'electron';
@@ -67,7 +67,7 @@ function DiskScan(props: Props) {
         setScanResult({
           movieFilePaths,
           filePaths,
-          timestamp: Date.now().toString(),
+          timestamp: `diskscan-${Date.now().toString()}`,
           rootPath: rootPath,
         });
       })
@@ -80,7 +80,7 @@ function DiskScan(props: Props) {
     const json = window.localStorage.getItem('DiskScan') || '{}';
     try {
       form.setFieldsValue(JSON.parse(json));
-    } catch (e) {}
+    } catch (e) { }
     return () => {
       window.localStorage.setItem('DiskScan', JSON.stringify(form.getFieldsValue()));
     };
@@ -128,6 +128,14 @@ function DiskScan(props: Props) {
         <ScanResultManager
           {...scanResult}
         />
+        <Typography>
+          <Typography.Paragraph>
+            扫描结果用时间戳命名, 保存为collection
+          </Typography.Paragraph>
+          <Typography.Paragraph>
+            扫描结果概述保存在scanResult集合中
+          </Typography.Paragraph>
+        </Typography>
       </PageHeaderWrapper>
     </>
   );
