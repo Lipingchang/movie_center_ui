@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Card, Typography, Alert, Avatar } from 'antd';
+import { Card, Typography, Alert, Avatar, Button } from 'antd';
 import styles from './Welcome.less';
-const fs = window.require('fs')
+import fakeexec from 'child_process';
+
+const exec: typeof fakeexec = window.require('child_process')
+
 // console.log(fs)
 
 const CodePreview: React.FC<{}> = ({ children }) => (
@@ -70,6 +73,10 @@ export default (): React.ReactNode => {
         </a>
         。
       </p>
+      <Button onClick={()=>{
+        // exec.exec('pwd', {shell: 'powershell.exe'},console.log)
+        exec.exec('node ./src/utils/scraper/javbus.js', {shell: 'powershell.exe'}, console.log)
+      }}>Start a Pupeteer!</Button>
     </PageHeaderWrapper>
   );
 };
