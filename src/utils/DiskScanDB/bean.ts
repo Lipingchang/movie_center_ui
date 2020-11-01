@@ -4,7 +4,7 @@ const mongoose: typeof fakemongoose = window.require('mongoose');
 
 export type ScanResultType = {
   _id: ObjectID;
-  timestamp: String; //Date;
+  timestamp: string; //Date;
   rootPath: string;
   filePaths: Array<string>;
   fileCount: number;
@@ -24,6 +24,13 @@ export const ScanResultSchema = new mongoose.Schema({
 });
 export const scanResultModel = mongoose.model('scanResult', ScanResultSchema, 'scanResults');
 
+export type SingleFileType = {
+  _id: ObjectID;
+  filePath: string;
+  fileName: string;
+  fileSize: String;
+  isMovieFile: boolean;
+}
 // 每个文件的信息
 export const SingleFileSchema = new mongoose.Schema({
   filePath: String,
@@ -31,3 +38,26 @@ export const SingleFileSchema = new mongoose.Schema({
   fileSize: String,
   isMovieFile: Boolean, // 是否为movie文件
 });
+
+// 记录电影文件
+export type MovieRecordType = {
+  _id?: ObjectID,
+  serialNo: MovieRecordSerialNoType,
+  detail?: {
+    cover: String,
+    actor: Array<ObjectID>,
+  },
+  scanResult: Array<{
+    collectionName: String,
+    path: String,
+    id: ObjectID, // 文件在collectionName中的_id号
+  }>,
+  
+}
+
+export type MovieRecordSerialNoType = {
+  id: String,
+  serial?: String,
+  no?: String,
+  seqarator?: String,
+}

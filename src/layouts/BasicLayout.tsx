@@ -14,7 +14,7 @@ import { Link, useIntl, connect, Dispatch } from 'umi';
 import { GithubOutlined } from '@ant-design/icons';
 import RightContent from '@/components/GlobalHeader/RightContent';
 import { ConnectState } from '@/models/connect';
-import logo from '../assets/logo.svg';
+// import logo from '../assets/logo.svg';
 
 
 export interface BasicLayoutProps extends ProLayoutProps {
@@ -82,15 +82,20 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
   }; // get children authority
 
 
-  const {} = useIntl();
+  // const { } = useIntl();
+  // useEffect(()=>{
+  //   console.log('basic layout load')
+  //   return () => {
+  //     console.log('basic layout down')
+  //   }
+  // })
   return (
     <ProLayout
-      logo={logo}
+      // logo={logo}
       menuHeaderRender={(logoDom, titleDom) => (
-        <Link to="/">
-          {logoDom}
-          {titleDom}
-        </Link>
+        <h1>
+          DOGEGG
+        </h1>
       )}
       onCollapse={handleMenuCollapse}
       menuItemRender={(menuItemProps, defaultDom) => {
@@ -112,8 +117,8 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
         return first ? (
           <Link to={paths.join('/')}>{route.breadcrumbName}</Link>
         ) : (
-          <span>{route.breadcrumbName}</span>
-        );
+            <span>{route.breadcrumbName}</span>
+          );
       }}
       // footerRender={() => defaultFooterDom}
       rightContentRender={() => <RightContent />}

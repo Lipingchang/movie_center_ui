@@ -75,7 +75,8 @@ function ScanResultPicker(props: Props) {
           >
             {dataSource.map((item, index) => {
               return (
-                <Radio key={item._id.toHexString()} value={item._id} style={radioStyle}>
+                // <Radio key={item._id.toHexString()} value={item._id} style={radioStyle}>
+                <Radio key={item._id.toHexString()} value={item.collectionName} style={radioStyle}>
                   <Typography.Text mark>
                     [{index + 1}] {item.rootPath}
                   </Typography.Text>

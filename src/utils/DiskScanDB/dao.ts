@@ -1,4 +1,10 @@
-import {SingleFileSchema, ScanResultSchema, scanResultModel, ScanResultType} from './bean';
+import {
+  SingleFileSchema,
+  ScanResultSchema,
+  scanResultModel,
+  ScanResultType,
+  SingleFileType,
+} from './bean';
 import { ObjectID } from 'mongodb';
 import fakepath from 'path';
 const path: typeof fakepath = window.require('path');
@@ -76,6 +82,20 @@ export function loadScanResult(): Promise<Array<ScanResultType>> {
 
 export function removeScanResult(_id: ObjectID, collectionName: string) {
   const delone = scanResultModel.deleteOne({ _id: _id });
-  mongoose.connection.dropCollection(collectionName)
+  mongoose.connection.dropCollection(collectionName);
   return delone;
+}
+
+export function loadMovieFiles(collectionName: string): Promise<Array<SingleFileType>> {
+  return new Promise((resolve, reject) => {
+    const diskScanModel = mongoose.model('diskScan', SingleFileSchema, collectionName);
+    diskScanModel
+      .find({ isMovieFile: true })
+      .then((docs) => {
+        resolve(docs.map((doc) => doc._doc))
+      })
+      .catch((error)=>{
+        reject(error)
+      })
+  });
 }

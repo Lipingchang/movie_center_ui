@@ -1,0 +1,33 @@
+.box {
+  display: flex;
+  border: 1px green solid;
+  height: 80vh;
+
+  .right {
+    border: 1px red solid;
+    flex-grow: 1;
+  }
+
+  .left {
+    border: 1px black solid;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-width: 33%;
+    min-width: 33%;
+
+    .item {
+        border: 1px goldenrod solid;
+        margin: 2px;
+    }
+    // 选中的item
+    .item.select {
+        border:2px red solid;
+        color: red;
+        margin: 0px;
+    }
+
+    .item:nth-child(2n+1) {
+        background-color: rgba(123,233,105,0.3);
+    }
+  }
+}

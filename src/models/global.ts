@@ -1,6 +1,6 @@
 import { Subscription, Reducer, Effect } from 'umi';
 import { message } from 'antd';
-import { MongooseType, connectToDB } from '@/utils/connect_db';
+import { MongooseType, connectToDB, closeDB } from '@/utils/connect_db';
 
 export interface GlobalModelState {
   collapsed: boolean;
@@ -49,6 +49,11 @@ const GlobalModel: GlobalModelType = {
       //   }
       // });
       // 连接数据库
+
+      // 退出页面前 关闭数据库连接
+      window.onbeforeunload = () =>{
+        closeDB();
+      }
       connectToDB()
         .then(() => {
           message.success('Connect To DB Success');
