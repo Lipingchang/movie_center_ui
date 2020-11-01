@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Card, Typography, Alert } from 'antd';
+import { Card, Typography, Alert, Avatar } from 'antd';
 import styles from './Welcome.less';
 const fs = window.require('fs')
 // console.log(fs)
@@ -16,6 +16,10 @@ const CodePreview: React.FC<{}> = ({ children }) => (
 export default (): React.ReactNode => {
   return (
     <PageHeaderWrapper>
+
+      <Card title="">
+
+      </Card>
       <Card>
         <Alert
           message="umi ui 现已发布，点击右下角 umi 图标即可使用"
@@ -48,6 +52,11 @@ export default (): React.ReactNode => {
           </a>
         </Typography.Text>
         <CodePreview> npm run fetch:blocks</CodePreview>
+
+        <p>使用local的file作为图片</p>
+        <p>https://www.electronjs.org/docs/api/protocol</p>
+        <Avatar src="myfile:///cache\e8abc280ae9f46538e920f438428b5c7!400x400.jpg"></Avatar>
+        <Avatar src="myfile:///cache/e8abc280ae9f46538e920f438428b5c7!400x400.jpg"></Avatar>
       </Card>
       <p
         style={{

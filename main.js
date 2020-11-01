@@ -1,15 +1,18 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, protocol } = require('electron')
+const { request } = require('express')
+const { useCallback } = require('react')
+const path = require('path')
 
 function createWindow () {   
   // 创建浏览器窗口
   const win = new BrowserWindow({
     width: 960,
-    height: 540,
+    height: 1040,
     x:0,
-    y:20,
+    y:40,
     webPreferences: {
       nodeIntegration: true,
-      webSecurity: false,
+      // webSecurity: false,
     }
   })
 
@@ -19,6 +22,13 @@ function createWindow () {
 
   // 打开开发者工具
   win.webContents.openDevTools()
+
+  // 使用自己的协议来加载图片文件
+  protocol.registerFileProtocol('myfile',(request, callback) => {
+    const url = request.url.substr(10)  // myfile:///file_path    file_path是第十个开始
+    url.replace('/\//g', '\\')    // win的分隔符
+    callback({path: path.normalize(`${__dirname}/${url}`)})
+  })
 }
 
 // Electron会在初始化完成并且准备好创建浏览器窗口时调用这个方法

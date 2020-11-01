@@ -94,7 +94,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
       // logo={logo}
       menuHeaderRender={(logoDom, titleDom) => (
         <h1>
-          DOGEGG
+          XXM Bus Station
         </h1>
       )}
       onCollapse={handleMenuCollapse}
