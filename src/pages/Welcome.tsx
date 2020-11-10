@@ -2,9 +2,8 @@ import React, { useEffect } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { Card, Typography, Alert, Avatar, Button } from 'antd';
 import styles from './Welcome.less';
-import fakeexec from 'child_process';
+import PupeteerStart from '@/components/Pupeteer'
 
-const exec: typeof fakeexec = window.require('child_process')
 
 // console.log(fs)
 
@@ -73,10 +72,7 @@ export default (): React.ReactNode => {
         </a>
         。
       </p>
-      <Button onClick={()=>{
-        // exec.exec('pwd', {shell: 'powershell.exe'},console.log)
-        exec.exec('node ./src/utils/scraper/javbus.js', {shell: 'powershell.exe'}, console.log)
-      }}>Start a Pupeteer!</Button>
+      <PupeteerStart/>
     </PageHeaderWrapper>
   );
 };

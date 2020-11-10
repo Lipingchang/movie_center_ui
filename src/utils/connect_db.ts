@@ -14,7 +14,7 @@ export function closeDB() {
 }
 
 export function connectToDB(): Promise<any> {
-  mongoose.connect(`mongodb://localhost:27017/${config.dbName}`, {
+  mongoose.connect(`mongodb://${config.dbAddress}/${config.dbName}`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
