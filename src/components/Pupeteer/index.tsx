@@ -19,6 +19,7 @@ export default function () {
           // data触发输出的内容进入缓存  缓存会溢出吗
           // const process = exec.spawn('node ./src/utils/scraper/javbus.js', {
           const process = exec.spawn('tsc ./src/utils/scraper/javbus.ts --esModuleInterop | node ./src/utils/scraper/javbus.js', {
+          // const process = exec.spawn('ts-node ./src/utils/scraper/javbus', {
             shell: 'powershell.exe',
           });
           process.stdout?.on('data', stdout);

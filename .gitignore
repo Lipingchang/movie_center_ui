@@ -39,6 +39,9 @@ screenshot
 
 build
 
-# 下载的图片缓存文件夹
-cache/*
+# 爬虫使用的chrome版本
 !.gitkeep
+chrome-win-87/*
+
+# 下载的图片 的 缓存文件夹
+cache/*

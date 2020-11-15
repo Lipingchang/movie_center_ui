@@ -1,9 +1,13 @@
-import  puppeteer from 'puppeteer'
-import path from 'path'
+// import  puppeteer from 'puppeteer'
+const puppeteer = require('puppeteer')
+const path = require('path')
+// import path from 'path'
+// const connectToDB = require('../connect_db')
+// import {connectToDB} from '../connect_db'
 // import fs from 'fs'
-const __dirname = path.resolve()
+// const __dirname = path.resolve()
 
-export async function run() {
+async function run() {
   // init browser
   console.log(puppeteer, __dirname)
   const browser = await puppeteer.launch({
@@ -34,9 +38,17 @@ export async function run() {
     console.log( await (await date[0].getProperty('textContext')).jsonValue())
   }
 
+  // connectToDB()
+
+
+  return mainPage;
 
 }
 
 
 console.log('runing!,\n')
-run()
+// run()
+
+// 调试
+// a = require("./src/utils/scraper/javbus.js")
+exports.run = run;
