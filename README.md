@@ -11,6 +11,7 @@ src/pages/下面
 - 录入数据库
 
 # TODO
+- 把 puppeteer 改成 调用py的seleium吧 这个调试好麻烦啊
 - 去片头
   - 文件夹
   - 文件 - 片头截图

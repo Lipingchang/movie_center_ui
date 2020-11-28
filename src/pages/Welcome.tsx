@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Card, Typography, Alert, Avatar } from 'antd';
+import { Card, Typography, Alert, Avatar, Button } from 'antd';
 import styles from './Welcome.less';
-const fs = window.require('fs')
+import PupeteerStart from '@/components/Pupeteer'
+
+
 // console.log(fs)
 
 const CodePreview: React.FC<{}> = ({ children }) => (
@@ -70,6 +72,7 @@ export default (): React.ReactNode => {
         </a>
         。
       </p>
+      <PupeteerStart/>
     </PageHeaderWrapper>
   );
 };
