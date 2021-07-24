@@ -1,3 +1,11 @@
+.boxtitle {
+  display: flex;
+  border: 1px red solid;
+  .left {
+    max-width: 33%;
+    min-width: 33%;
+  }
+}
 .box {
   display: flex;
   border: 1px green solid;
@@ -6,6 +14,9 @@
   .right {
     border: 1px red solid;
     flex-grow: 1;
+    .regexOtherOption {
+      margin-top: 20px;
+    }
   }
 
   .left {
@@ -18,6 +29,8 @@
     .item {
         border: 1px goldenrod solid;
         margin: 2px;
+        display: flex;
+        min-width: max-content;
     }
     // 选中的item
     .item.select {
@@ -29,5 +42,10 @@
     .item:nth-child(2n+1) {
         background-color: rgba(123,233,105,0.3);
     }
+    
+    .modifyTag {
+      border: deepskyblue 1px solid;
+    }
+
   }
 }

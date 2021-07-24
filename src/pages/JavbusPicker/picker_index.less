@@ -1,0 +1,52 @@
+.slider {
+  border: black solid 2px;
+  min-height: 10px;
+  min-width: calc(100% - 10px);
+  margin: 10px 0px 10px 0px;
+}
+
+:global #picker {
+  display: flex;
+  flex-direction: column;
+  border: 1px red solid;
+  height: 100vh;
+
+  #cover_box {
+    flex: 1;
+  }
+  #sample_box {
+    flex: 8;
+    display: flex;
+    align-items: center;
+
+    div {
+      display: flex;
+      align-items: center;
+      overflow: scroll;
+      width: 100%;
+      height: 100%;
+      img {
+        max-height: 60vh;
+        max-width: 80vw;
+        display: block;
+        margin: 0px 10px 0px 0px;
+      }
+    }
+  }
+  #download_type_box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    button {
+      margin: 0 10px 0 0;
+      border: 5px solid;
+      height: max-content;
+      width: max-content;
+      padding: 15px;
+    }
+  }
+  #my_category_box {
+    flex: 1;
+  }
+}

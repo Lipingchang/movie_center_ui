@@ -2,6 +2,7 @@ import { ObjectID } from 'mongodb';
 import fakemongoose, { Mongoose } from 'mongoose';
 const mongoose: typeof fakemongoose = window.require('mongoose');
 
+/*************  各个扫描摘要 */
 export type ScanResultType = {
   _id: ObjectID;
   timestamp: string; //Date;
@@ -12,7 +13,6 @@ export type ScanResultType = {
   movieFileCount: number;
   collectionName: string; // 保存本次扫描所有文件详细信息的collection 那个collection的内部item是singlefileschema
 };
-// 各个扫描摘要
 export const ScanResultSchema = new mongoose.Schema({
   timestamp: String, //{ type: Date, default: Date.now }, // 扫描日期
   rootPath: String, // 根目录
@@ -23,25 +23,38 @@ export const ScanResultSchema = new mongoose.Schema({
   collectionName: String, // 保存本次扫描所有文件详细信息的collection 那个collection的内部item是singlefileschema
 });
 export const scanResultModel = mongoose.model('scanResult', ScanResultSchema, 'scanResults');
+/********************************************************************************************************************* */
 
+/************************* 文件对象  记录每个文件的信息*/ 
 export type SingleFileType = {
   _id: ObjectID;
   filePath: string;
   fileName: string;
   fileSize: String;
   isMovieFile: boolean;
+  serialNo: MovieRecordSerialNoType; // 视频文件的番号，是电影文件的话内容就不为null
+  isJav: boolean;     // 是不是jav
 }
-// 每个文件的信息
+const MovieRecordSerialNoTypeSchema = {
+  id: String, // 国产和欧美电影就只有id， 有番号的电影的id由serial和no组成
+  serial: String,
+  no: String,
+  seqarator: String,
+}
 export const SingleFileSchema = new mongoose.Schema({
   filePath: String,
   fileName: String,
   fileSize: String,
   isMovieFile: Boolean, // 是否为movie文件
+  serialNo: MovieRecordSerialNoTypeSchema,
 });
+/********************************************************************************************************************* */
 
-// 记录电影文件
+// 记录电影文件 ??? 应该是记录下同一个番号下有多少个文件
 export type MovieRecordType = {
   _id?: ObjectID,
+  key?: string,
+  filename?: string,
   serialNo: MovieRecordSerialNoType,
   detail?: {
     cover: String,
@@ -56,8 +69,9 @@ export type MovieRecordType = {
 }
 
 export type MovieRecordSerialNoType = {
-  id: String,
-  serial?: String,
-  no?: String,
-  seqarator?: String,
+  id: string,
+  serial?: string,
+  no?: string,
+  seqarator?: string,
 }
+

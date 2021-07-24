@@ -56,10 +56,10 @@ export default defineConfig({
           component: './Welcome',
         },
         {
-          name: 'list.table-list',
+          name: 'bus picker',
           icon: 'table',
           path: '/list',
-          component: './ListTableList',
+          component: './JavbusPicker/picker_index',
         },
         {
           component: './404',
