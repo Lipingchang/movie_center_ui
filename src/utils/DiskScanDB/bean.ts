@@ -47,6 +47,7 @@ export const SingleFileSchema = new mongoose.Schema({
   fileSize: String,
   isMovieFile: Boolean, // 是否为movie文件
   serialNo: MovieRecordSerialNoTypeSchema,
+  isJav: Boolean,
 });
 /********************************************************************************************************************* */
 
