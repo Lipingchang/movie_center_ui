@@ -59,7 +59,7 @@
     "@types/puppeteer": "^3.0.4",
     "antd": "4.2.5",
     "classnames": "^2.2.6",
-    "electron": "^9.0.2",
+    "electron": "^13.1.7",
     "lodash": "^4.17.11",
     "moment": "^2.25.3",
     "mongoose": "^5.9.18",

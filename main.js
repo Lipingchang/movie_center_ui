@@ -12,12 +12,13 @@ function createWindow () {
     y:40,
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
       // webSecurity: false,
     }
   })
 
   // 并且为你的应用加载index.html
-  // win.loadFile('../webapp/src/pages//index.html')
+  // win.loadFile('./streamTest.html')
   win.loadURL("http://localhost:8000")
 
   // 打开开发者工具
