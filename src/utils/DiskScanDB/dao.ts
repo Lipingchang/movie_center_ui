@@ -5,10 +5,10 @@ import {
   ScanResultType,
   SingleFileType,
   MovieRecordType,
+  JavbusIdolType,
+  JavbusIdolSchema,
 } from './bean';
-import {
-  _SingleFileType
-} from '../../pages/SerialNo/SerialNo'
+import { _SingleFileType } from '../../pages/SerialNo/SerialNo';
 import fakepath from 'path';
 const path: typeof fakepath = window.require('path');
 import fakemongoose, { Mongoose } from 'mongoose';
@@ -108,7 +108,92 @@ export function loadMovieFiles(collectionName: string): Promise<Array<SingleFile
       });
   });
 }
+/**
+ * 加载Jav电影文件列表
+ * @param collectionName collection名字
+ * @returns 文件列表
+ */
+export function loadJavMovieFiles(collectionName: string): Promise<Array<SingleFileType>> {
+  return new Promise((resolve, reject) => {
+    const diskScanModel = mongoose.model('diskScan', SingleFileSchema, collectionName);
+    diskScanModel
+      .find({ isMovieFile: true, isJav: true })
+      .then((docs) => {
+        resolve(docs.map((doc) => doc._doc));
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
 
+/**
+ *
+ * @param pageNum 从1开始
+ * @param pageSize 每页大小
+ * @returns
+ */
+export function loadIdolListByPage(
+  pageNum: number,
+  pageSize: number,
+): Promise<Array<JavbusIdolType>> {
+  return new Promise((resolve, reject) => {
+    const javbusIdolModel = mongoose.model('javbusIdol', JavbusIdolSchema, 'javbus_idol');
+    javbusIdolModel
+      .aggregate([
+        {
+          $facet: {
+            docs: [{ $skip: (pageNum - 1) * pageSize }, { $limit: pageSize }],
+            pageinfo: [{ $group: { _id: null, total: { $sum: 1 } } }],
+          },
+        },
+      ])
+      .then((docs) => {
+        docs = docs.map((doc) => doc);
+        let total = docs[0].pageinfo[0].total;
+        docs[0].pageinfo = {
+          pageSize,
+          pageNum,
+          total,
+        };
+        resolve(docs[0]);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
+/*
+db.getCollection('javbus_movie')
+.aggregate([
+  {
+      $match: {idol: {'$elemMatch': {name:'里美ゆりあ'}}}
+  },
+  {
+      $lookup: {
+          from: "diskscan-1627125782917",
+          localField: "serial",
+          foreignField: "serialNo.id",
+          as: "newdoc",
+      }
+    
+  },
+  {
+      $match: {"newdoc": {$ne:[]}}
+  },
+  {
+      $project: {"newdoc":1}
+  },
+  {
+      $unwind: "$newdoc"
+  },
+  {
+      $project: {"newdoc.filePath":1,"newdoc.serialNo.id":1}
+  },
+])
+*/
+export async function loadIdolMovies(IdolName: string): Promise<Array<>> {}
 async function updateOneMovie(movie: MovieRecordType) {
   return new Promise((resolve, reject) => {});
 }
@@ -135,7 +220,7 @@ export function saveSerialNo(
             },
           },
         );
-        if (_.ok===1) {
+        if (_.ok === 1) {
           okCount++;
         }
       }

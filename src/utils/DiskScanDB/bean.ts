@@ -76,3 +76,17 @@ export type MovieRecordSerialNoType = {
   seqarator?: string,
 }
 
+// python爬取的数据的格式:
+/************************* 演员 */
+export type JavbusIdolType = {
+  _id: ObjectID,
+  name: string,
+  href: string,
+  picPath: string,
+}
+export const JavbusIdolSchema = new mongoose.Schema({
+  name: String,
+  href: String,
+  picPath: String,
+})
+/********************************************************************************************************************* */
