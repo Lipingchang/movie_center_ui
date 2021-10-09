@@ -1,9 +1,10 @@
 import React, { useReducer, useEffect, useState } from 'react';
 import { connect, DispatchProp } from 'dva';
 import { ConnectState } from '@/models/connect';
-import { loadIdolListByPage } from '@/utils/DiskScanDB/dao';
+import { idolMovieType, loadIdolListByPage, loadIdolMovies } from '@/utils/DiskScanDB/dao';
 import { Button, List, Typography } from 'antd'
 import { JavbusIdolType } from '@/utils/DiskScanDB/bean'
+const electron = window.require('electron')
 
 type Props = {} & ConnectState;
 function IdolList(props: Props) {
@@ -14,15 +15,18 @@ function IdolList(props: Props) {
       setListTotal(_data.pageinfo.total)
     })
   }
-  function queryTheName(name:string) {
-
+  function queryTheName(name: string) {
+    loadIdolMovies(name)
+      .then(list => setIdolMovieList(list))
   }
   useEffect(() => {
     goPage(1, 10)
+    // queryTheName('里美ゆりあ')
   }, [props.dispatch])
   const [idolList, setIdolList] = useState<Array<JavbusIdolType> | []>([])
   const [idolListTotal, setListTotal] = useState<number>(0)
   const [queryName, setQueryName] = useState<string>("")
+  const [idolMovieList, setIdolMovieList] = useState<Array<idolMovieType>>([])
 
   return (
     <div>
@@ -41,7 +45,7 @@ function IdolList(props: Props) {
             return (
               <List.Item key={_doc.href}>
                 <Typography.Text>{_doc.name}</Typography.Text>
-                <Button onClick={()=>{queryTheName(_doc.name)}}>Query!</Button>
+                <Button onClick={() => { queryTheName(_doc.name); setQueryName(_doc.name) }}>Query!</Button>
               </List.Item>
             )
           }}
@@ -50,6 +54,27 @@ function IdolList(props: Props) {
       </div>
       <div>
         <Typography.Title>Find Idol Presentations:</Typography.Title>
+        <Typography.Paragraph>{queryName}</Typography.Paragraph>
+        <List
+          dataSource={idolMovieList}
+          renderItem={(i) => {
+            return (
+              <List.Item
+                key={i.serial}
+              >
+                <Typography.Title level={4}>{i.serial}</Typography.Title>
+                {Object.keys(i.diskscan).map(collectionName => {
+                  if (i.diskscan[collectionName].length === 0) {
+                    return <div key={collectionName}>none</div>
+                  } else {
+                    return <div key={collectionName}><Button onClick={() => {
+                      electron.shell.openPath(i.diskscan[collectionName][0].filePath)
+                    }}>Go</Button></div>
+                  }
+                })}
+              </List.Item>
+            )
+          }}></List>
       </div>
     </div>
   )

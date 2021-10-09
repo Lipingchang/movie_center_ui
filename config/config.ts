@@ -45,21 +45,32 @@ export default defineConfig({
           component: './SerialNo/SerialNo.tsx',
         },
         {
-          path: '/diskscan',
-          name: 'diskscan',
-          component: './diskscan/diskscan.tsx',
+          path: '/movieimport',
+          name: 'Movie Import',
+          component: './MovieManager/MovieImport.tsx'
         },
         {
-          path: '/welcome',
-          name: 'welcome',
-          icon: 'smile',
-          component: './Welcome',
+          path: '/diskscan',
+          name: 'diskscan',
+          component: './Diskscan/Diskscan.tsx',
         },
+        // {
+        //   path: '/welcome',
+        //   name: 'welcome',
+        //   icon: 'smile',
+        //   component: './Welcome',
+        // },
         {
           name: 'bus picker',
           icon: 'table',
           path: '/list',
           component: './JavbusPicker/picker_index',
+        },
+        {
+          name: 'aver list',
+          icon: 'girl',
+          path: '/averlist',
+          component: './IdolList/IdolList.tsx'
         },
         {
           component: './404',

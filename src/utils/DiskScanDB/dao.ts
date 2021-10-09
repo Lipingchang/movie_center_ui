@@ -7,6 +7,7 @@ import {
   MovieRecordType,
   JavbusIdolType,
   JavbusIdolSchema,
+  JavbusMovieSchema,
 } from './bean';
 import { _SingleFileType } from '../../pages/SerialNo/SerialNo';
 import fakepath from 'path';
@@ -127,16 +128,21 @@ export function loadJavMovieFiles(collectionName: string): Promise<Array<SingleF
   });
 }
 
+export type idolListType = {
+  docs: Array<JavbusIdolType>;
+  pageinfo: {
+    pageSize: number;
+    pageNum: number;
+    total: number;
+  };
+};
 /**
  *
  * @param pageNum 从1开始
  * @param pageSize 每页大小
  * @returns
  */
-export function loadIdolListByPage(
-  pageNum: number,
-  pageSize: number,
-): Promise<Array<JavbusIdolType>> {
+export function loadIdolListByPage(pageNum: number, pageSize: number): Promise<idolListType> {
   return new Promise((resolve, reject) => {
     const javbusIdolModel = mongoose.model('javbusIdol', JavbusIdolSchema, 'javbus_idol');
     javbusIdolModel
@@ -193,7 +199,45 @@ db.getCollection('javbus_movie')
   },
 ])
 */
-export async function loadIdolMovies(IdolName: string): Promise<Array<>> {}
+
+export type idolMovieType = {
+  serial: string,
+  cover:string,
+  diskscan: {
+    [key:string] : Array<SingleFileType>
+  },
+  sample_pic: Array<{name:string}>
+}
+export async function loadIdolMovies(IdolName: string): Promise<Array<idolMovieType>> {
+  const scanResult = await loadScanResult(); // 磁盘扫描结果列表
+  // 把javbus的电影列表的番号 和 所有扫描结果左连接，连接结果储存到 diskscan 的对象中
+  const lookupList = scanResult.map(c => ({  
+    '$lookup': {
+      'from': c.collectionName,
+      'localField': 'serial',
+      'foreignField': 'serialNo.id',
+      'as': 'diskscan.'+c.collectionName
+    }
+  }))
+  return new Promise((resolve, reject) => {
+    const javbusMovieModel = mongoose.model('javbusmovie', JavbusMovieSchema, 'javbus_movie');
+    javbusMovieModel
+      .aggregate([
+        {
+          $match: { idol: { $elemMatch: { name: IdolName } } }, // 以idol的名字作为过滤条件
+        },
+        ...lookupList,
+      ])
+      .then((docs) => {
+        docs = docs.map((doc) => doc)
+        resolve(docs)
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
 async function updateOneMovie(movie: MovieRecordType) {
   return new Promise((resolve, reject) => {});
 }

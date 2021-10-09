@@ -1,3 +1,4 @@
+import { StringGradients } from 'antd/lib/progress/progress';
 import { ObjectID } from 'mongodb';
 import fakemongoose, { Mongoose } from 'mongoose';
 const mongoose: typeof fakemongoose = window.require('mongoose');
@@ -88,5 +89,21 @@ export const JavbusIdolSchema = new mongoose.Schema({
   name: String,
   href: String,
   picPath: String,
+})
+/********************************************************************************************************************* */
+/************************电影 */
+export type JavbusMovieType = {
+  _id: ObjectID,
+  serial: string,
+  cover: string,
+  // release_data: string,
+  // studio: Array<{name:string,href:string,id:string}>,
+  // lab: Array<{name:string,href:string,id:string}>,
+  idol: Array<JavbusIdolType>,
+  sample_pic: Array<{name:string,href:string}>
+}
+export const JavbusMovieSchema = new mongoose.Schema({
+  serial:String,
+  cover:String,
 })
 /********************************************************************************************************************* */
