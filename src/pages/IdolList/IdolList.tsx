@@ -2,7 +2,7 @@ import React, { useReducer, useEffect, useState } from 'react';
 import { connect, DispatchProp } from 'dva';
 import { ConnectState } from '@/models/connect';
 import { idolMovieType, loadIdolListByPage, loadIdolMovies } from '@/utils/DiskScanDB/dao';
-import { Button, List, Typography } from 'antd'
+import { AutoComplete, Button, Input, List, Typography } from 'antd'
 import { JavbusIdolType } from '@/utils/DiskScanDB/bean'
 const electron = window.require('electron')
 
@@ -20,7 +20,7 @@ function IdolList(props: Props) {
       .then(list => setIdolMovieList(list))
   }
   useEffect(() => {
-    goPage(1, 10)
+    goPage(1, 20)
     // queryTheName('里美ゆりあ')
   }, [props.dispatch])
   const [idolList, setIdolList] = useState<Array<JavbusIdolType> | []>([])
@@ -32,18 +32,30 @@ function IdolList(props: Props) {
     <div>
       <div>
         <List
+          grid={{
+            gutter: 16,
+            xs: 1,
+            sm: 2,
+            md: 4,
+            lg: 4,
+            xl: 6,
+            xxl: 3,
+          }}
           bordered
           pagination={{
             onChange: (pageNum: number, pageSize?: number) => {
-              goPage(pageNum, pageSize !== undefined ? pageSize : 10)
+              goPage(pageNum, pageSize !== undefined ? pageSize : 20)
             },
             total: idolListTotal,
+            // showTotal:  (total: number, range: [number,number]) => {return `${range[0]}-${range[1]} of ${total} items`}
+            responsive: true,
+            defaultPageSize: 20,
           }}
           dataSource={idolList}
           renderItem={(_doc) => {
             // console.log(_doc)
             return (
-              <List.Item key={_doc.href}>
+              <List.Item key={_doc.href} >
                 <Typography.Text>{_doc.name}</Typography.Text>
                 <Button onClick={() => { queryTheName(_doc.name); setQueryName(_doc.name) }}>Query!</Button>
               </List.Item>
@@ -55,12 +67,20 @@ function IdolList(props: Props) {
       <div>
         <Typography.Title>Find Idol Presentations:</Typography.Title>
         <Typography.Paragraph>{queryName}</Typography.Paragraph>
+        <AutoComplete onSearch={(_value)=>{
+          console.log(_value)
+        }}>
+          <Input.Search
+            onSearch={(value) => { setQueryName(value); queryTheName(value) }}
+          />
+        </AutoComplete>
         <List
           dataSource={idolMovieList}
           renderItem={(i) => {
             return (
               <List.Item
                 key={i.serial}
+                style={{ justifyContent: 'space-between' }}
               >
                 <Typography.Title level={4}>{i.serial}</Typography.Title>
                 {Object.keys(i.diskscan).map(collectionName => {
@@ -76,7 +96,7 @@ function IdolList(props: Props) {
             )
           }}></List>
       </div>
-    </div>
+    </div >
   )
 }
 export default connect((state: ConnectState) => ({ ...state }))(IdolList);
