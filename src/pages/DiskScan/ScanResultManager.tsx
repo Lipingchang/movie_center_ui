@@ -102,7 +102,7 @@ function ScanResultManager(props: Props) {
   const [loading, setloading] = useState<boolean>(false);
   useEffect(() => {
     loadScanResult().then((res) => {
-      console.log(res);
+      // console.log(res);
     });
   }, [props.dispatch]);
 

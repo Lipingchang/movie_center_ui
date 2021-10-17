@@ -7,6 +7,7 @@ import Button from 'antd/es/button';
 import Checkbox from 'antd/es/checkbox';
 import electron from 'electron';
 import ScanResultManager from './ScanResultManager';
+import FuzzySearchFileCard from './FuzzySearchFile';
 // import { remote as fakeremote } from 'electron';
 // const { dialog: fakeDialog } = fakeremote;
 const dialog: typeof electron.remote.dialog = window.require('electron').remote.dialog;
@@ -136,6 +137,7 @@ function DiskScan(props: Props) {
             扫描结果概述保存在scanResult集合中
           </Typography.Paragraph>
         </Typography>
+        <FuzzySearchFileCard></FuzzySearchFileCard>
       </PageHeaderWrapper>
     </>
   );

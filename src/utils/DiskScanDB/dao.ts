@@ -110,6 +110,34 @@ export function loadMovieFiles(collectionName: string): Promise<Array<SingleFile
   });
 }
 /**
+ * 模糊搜索电影文件
+ * @returns 文件列表
+ */
+async function _searchMovieFiles(collectionName:string,target: string): Promise<Array<SingleFileType>> {
+  return new Promise((resolve, reject) => {
+    const diskScanModel = mongoose.model('diskScan', SingleFileSchema,collectionName);
+    diskScanModel
+      .find({ isMovieFile: true, filePath: new RegExp('.*' + target + '.*','i') }) // 忽略大小写
+      .then((docs) => {
+        resolve(docs.map((doc) => doc._doc));
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+export async function searchMovieFiles(target: string): Promise<Array<SingleFileType>> {
+  const scanResult = await loadScanResult(); // 磁盘扫描结果列表
+  let r: Array<SingleFileType> = []
+  for(let i=0;i<scanResult.length;i++){
+    let _ = await _searchMovieFiles(scanResult[i].collectionName,target)
+    // console.log(scanResult[i].collectionName, _)
+    r = r.concat(_)
+  }
+  return r;
+}
+
+/**
  * 加载Jav电影文件列表
  * @param collectionName collection名字
  * @returns 文件列表
@@ -201,24 +229,24 @@ db.getCollection('javbus_movie')
 */
 
 export type idolMovieType = {
-  serial: string,
-  cover:string,
+  serial: string;
+  cover: string;
   diskscan: {
-    [key:string] : Array<SingleFileType>
-  },
-  sample_pic: Array<{name:string}>
-}
+    [key: string]: Array<SingleFileType>;
+  };
+  sample_pic: Array<{ name: string }>;
+};
 export async function loadIdolMovies(IdolName: string): Promise<Array<idolMovieType>> {
   const scanResult = await loadScanResult(); // 磁盘扫描结果列表
   // 把javbus的电影列表的番号 和 所有扫描结果左连接，连接结果储存到 diskscan 的对象中
-  const lookupList = scanResult.map(c => ({  
-    '$lookup': {
-      'from': c.collectionName,
-      'localField': 'serial',
-      'foreignField': 'serialNo.id',
-      'as': 'diskscan.'+c.collectionName
-    }
-  }))
+  const lookupList = scanResult.map((c) => ({
+    $lookup: {
+      from: c.collectionName,
+      localField: 'serial',
+      foreignField: 'serialNo.id',
+      as: 'diskscan.' + c.collectionName,
+    },
+  }));
   return new Promise((resolve, reject) => {
     const javbusMovieModel = mongoose.model('javbusmovie', JavbusMovieSchema, 'javbus_movie');
     javbusMovieModel
@@ -229,8 +257,8 @@ export async function loadIdolMovies(IdolName: string): Promise<Array<idolMovieT
         ...lookupList,
       ])
       .then((docs) => {
-        docs = docs.map((doc) => doc)
-        resolve(docs)
+        docs = docs.map((doc) => doc);
+        resolve(docs);
       })
       .catch((error) => {
         reject(error);
