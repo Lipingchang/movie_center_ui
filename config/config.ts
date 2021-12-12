@@ -78,6 +78,11 @@ export default defineConfig({
           component: './IdolList/IdolList.tsx'
         },
         {
+          name: 'file picker',
+          path: '/filepicker',
+          component: './FilePicker/FilePicker.tsx'
+        },
+        {
           component: './404',
         },
       ],
