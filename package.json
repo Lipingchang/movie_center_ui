@@ -4,6 +4,7 @@
   "private": true,
   "description": "An out-of-box UI solution for enterprise applications",
   "scripts": {
+    "uibuild": "electron-builder --win --x64",
     "startui": "electron ./main.js",
     "analyze": "cross-env ANALYZE=1 umi build",
     "build": "umi build",
@@ -59,7 +60,6 @@
     "@types/puppeteer": "^3.0.4",
     "antd": "4.2.5",
     "classnames": "^2.2.6",
-    "electron": "^13.1.7",
     "lodash": "^4.17.11",
     "moment": "^2.25.3",
     "mongoose": "^5.9.18",
@@ -76,9 +76,10 @@
     "use-merge-value": "^1.0.1"
   },
   "devDependencies": {
+    "electron-builder": "^22.13.1",
     "@ant-design/pro-cli": "^1.0.18",
     "@types/classnames": "^2.2.7",
-    "@types/express": "^4.17.0",
+    "@types/express": "4.17.0",
     "@types/history": "^4.7.2",
     "@types/jest": "^25.1.0",
     "@types/lodash": "^4.14.144",
@@ -96,9 +97,10 @@
     "cross-env": "^7.0.0",
     "cross-port-killer": "^1.1.1",
     "detect-installer": "^1.0.1",
+    "electron": "13.1.7",
     "enzyme": "^3.11.0",
     "eslint": "^6.8.0",
-    "express": "^4.17.1",
+    "express": "4.17.1",
     "gh-pages": "^2.0.1",
     "husky": "^4.0.7",
     "jsdom-global": "^3.0.2",
@@ -118,5 +120,13 @@
     "src/**/*.less",
     "config/**/*.js*",
     "scripts/**/*.js"
-  ]
+  ],
+  "build": {
+    "appId": "javstation.1",
+    "win": {
+      "target": [
+        "portable"
+      ]
+    }
+  }
 }

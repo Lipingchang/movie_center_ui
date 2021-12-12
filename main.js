@@ -1,5 +1,4 @@
 const { app, BrowserWindow, protocol } = require('electron')
-const { request } = require('express')
 const { useCallback } = require('react')
 const path = require('path')
 
@@ -21,6 +20,7 @@ function createWindow () {
   // 并且为你的应用加载index.html
   // win.loadFile('./streamTest.html')
   win.loadURL("http://localhost:8000")
+  // win.loadFile('./dist/index.html')
 
   // 打开开发者工具
   win.webContents.openDevTools()
@@ -30,6 +30,9 @@ function createWindow () {
     const url = request.url.substr(10)  // myfile:///file_path    file_path是第十个开始
     url.replace('/\//g', '\\')    // win的分隔符
     callback({path: path.normalize(`${__dirname}/${url}`)})
+    // 在windows下用不同文件夹跑环境的时候 
+    // 可以用软连接 mklink /J cache E:\workspace\movie_center_ui\cache
+    // 用快捷方式的lnk文件无效
   })
 }
 
