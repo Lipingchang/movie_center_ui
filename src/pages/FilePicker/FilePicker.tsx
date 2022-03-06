@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ConnectState } from '@/models/connect';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { Button, Card, Form, Input, List, message, Typography, Spin } from 'antd';
@@ -13,19 +13,46 @@ import electron from 'electron';
 import ScanResultPicker from '../DiskScan/ScanResultPicker';
 import { connect } from "react-redux";
 import FormItem from 'antd/lib/form/FormItem';
+import styles from './FilePicker.less'
 
 const dialog: typeof electron.remote.dialog = window.require('electron').remote.dialog;
 
 type PropsType = {} & ConnectState;
+type State = {
+  scanresult: string,
+}
 function FilePicker(props: PropsType) {
   const [form] = useForm();
+  const [state,setState] = useState<State>();
+  const formValues = form.getFieldsValue()
   return (
     <>
       <PageHeaderWrapper>
-        <Form>
+        <Form
+          form={form}
+          onValuesChange={(_dir)=>{
+            setState({
+              ...state,
+              scanresult: _dir['scanresult']
+            })
+            if (_dir['scanresult']!==undefined) {
+              loadFileList()  // TODO 从数据库中分页查询文件列表
+              // TODO   添加 isJav 查询过滤开关
+            }
+          }}
+        >
           <FormItem name="scanresult">
             <ScanResultPicker />
           </FormItem>
+          <div className={styles.main}>
+            <div className={styles.a}>
+              <p>文件列表<span>{state?.scanresult}</span></p>
+              <List></List>
+            </div>
+            <div className={styles.b}>
+              <p>文件详情</p>
+            </div>
+          </div>
         </Form>
       </PageHeaderWrapper>
     </>
@@ -33,4 +60,3 @@ function FilePicker(props: PropsType) {
 }
 
 export default connect((state: ConnectState) => ({ ...state }))(FilePicker);
-// export default FilePicker;
