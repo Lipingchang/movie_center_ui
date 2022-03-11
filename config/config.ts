@@ -76,7 +76,7 @@ export default defineConfig({
         },
         {
           name: 'aver list',
-          icon: 'girl',
+          icon: 'woman',
           path: '/averlist',
           component: './IdolList/IdolList.tsx'
         },

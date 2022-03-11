@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect, useState } from 'react';
 import { connect, DispatchProp } from 'dva';
 import { ConnectState } from '@/models/connect';
-import { idolMovieType, loadIdolListByPage, loadIdolMovies } from '@/utils/DiskScanDB/dao';
+import { fuzzyQueryIdolName, idolMovieType, loadIdolListByPage, loadIdolMovies } from '@/utils/DiskScanDB/dao';
 import { AutoComplete, Button, Input, List, Typography } from 'antd'
 import { JavbusIdolType } from '@/utils/DiskScanDB/bean'
 const electron = window.require('electron')
@@ -19,6 +19,12 @@ function IdolList(props: Props) {
     loadIdolMovies(name)
       .then(list => setIdolMovieList(list))
   }
+  async function fuzzyQueryIdolNameIntoOption(_value:string) {
+    if (_value.length<=0 || _value.includes('\'')) return;    // 去掉输入法
+    let names = await fuzzyQueryIdolName(_value)
+    let options = names.map(n => {return {value: n}})
+    setCompletedIdolNameOptions(options)
+  }
   useEffect(() => {
     goPage(1, 20)
     // queryTheName('里美ゆりあ')
@@ -27,6 +33,7 @@ function IdolList(props: Props) {
   const [idolListTotal, setListTotal] = useState<number>(0)
   const [queryName, setQueryName] = useState<string>("")
   const [idolMovieList, setIdolMovieList] = useState<Array<idolMovieType>>([])
+  const [completedIdolNameOptions, setCompletedIdolNameOptions] = useState<Array<{value:string}>>([])
 
   return (
     <div>
@@ -67,9 +74,9 @@ function IdolList(props: Props) {
       <div>
         <Typography.Title>Find Idol Presentations:</Typography.Title>
         <Typography.Paragraph>{queryName}</Typography.Paragraph>
-        <AutoComplete onSearch={(_value)=>{
-          console.log(_value)
-        }}>
+        <AutoComplete   // 模糊查询偶像名字
+          options={completedIdolNameOptions}
+          onSearch={fuzzyQueryIdolNameIntoOption}>
           <Input.Search
             onSearch={(value) => { setQueryName(value); queryTheName(value) }}
           />

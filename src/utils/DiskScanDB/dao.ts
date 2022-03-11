@@ -197,7 +197,20 @@ export function loadIdolListByPage(pageNum: number, pageSize: number): Promise<i
       });
   });
 }
-
+export function fuzzyQueryIdolName(fuzzyStr:string):Promise<Array<string>> {
+  return new Promise((resolve,reject)=>{
+    const javbusIdolModel = mongoose.model('javbusIdol', JavbusIdolSchema, 'javbus_idol');
+    javbusIdolModel
+      .find({'name': new RegExp(".*"+fuzzyStr+".*")})
+      .then((docs) => {
+        docs = docs.map((doc) => doc.name);
+        resolve(docs);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  })
+}
 /*
 db.getCollection('javbus_movie')
 .aggregate([
