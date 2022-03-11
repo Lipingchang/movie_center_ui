@@ -14,6 +14,7 @@ import fakepath from 'path';
 const path: typeof fakepath = window.require('path');
 import fakemongoose, { Mongoose } from 'mongoose';
 import { ObjectID } from 'bson';
+import { PaginationProps } from 'antd/lib/pagination';
 const mongoose: typeof fakemongoose = window.require('mongoose');
 
 // 把查找出来的 普通文件 和 movie文件 合并后 保存到数据库中
@@ -109,6 +110,43 @@ export function loadMovieFiles(collectionName: string): Promise<Array<SingleFile
       });
   });
 }
+/**
+ * 加载电影文件列表
+ * @param collectionName collection名字
+ * @returns 文件列表
+ */
+export async function loadMovieFilesByPage(
+  collectionName: string,
+  page: PaginationProps,
+  ): Promise<Array<SingleFileType>> {
+  
+  const diskScanModel = mongoose.model('diskScan', SingleFileSchema, collectionName);
+  const {current,pageSize, total} = page
+  const query = {isMoveFile:true}
+  const result = await Promise.all([
+    diskScanModel.count(query),
+    diskScanModel
+      .find(query)
+      .skip(current*pageSize)
+      .limit(pageSize)
+  ])
+
+
+  return new Promise((resolve, reject) => {
+    
+    diskScanModel
+      .find({ isMovieFile: true })
+      .skip(current*pageSize)
+      .limit(pageSize)
+      .then((docs) => {
+        resolve(docs.map((doc) => doc._doc));
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
 /**
  * 模糊搜索电影文件
  * @returns 文件列表

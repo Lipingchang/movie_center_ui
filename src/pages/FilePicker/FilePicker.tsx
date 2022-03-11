@@ -14,17 +14,25 @@ import ScanResultPicker from '../DiskScan/ScanResultPicker';
 import { connect } from "react-redux";
 import FormItem from 'antd/lib/form/FormItem';
 import styles from './FilePicker.less'
+import { PaginationProps } from 'antd/lib/pagination';
 
 const dialog: typeof electron.remote.dialog = window.require('electron').remote.dialog;
 
 type PropsType = {} & ConnectState;
 type State = {
-  scanresult: string,
+  scanresult: string[],
+  page: PaginationProps
 }
 function FilePicker(props: PropsType) {
   const [form] = useForm();
-  const [state,setState] = useState<State>();
+  const [state,setState] = useState<State>({
+    scanresult: [],
+    page: {}
+  });
   const formValues = form.getFieldsValue()
+  function loadFileListByPage() {
+
+  }
   return (
     <>
       <PageHeaderWrapper>
@@ -36,7 +44,7 @@ function FilePicker(props: PropsType) {
               scanresult: _dir['scanresult']
             })
             if (_dir['scanresult']!==undefined) {
-              loadFileList()  // TODO 从数据库中分页查询文件列表
+              loadFileListByPage()  // TODO 从数据库中分页查询文件列表
               // TODO   添加 isJav 查询过滤开关
             }
           }}
