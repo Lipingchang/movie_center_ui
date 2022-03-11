@@ -37,27 +37,30 @@ export default defineConfig({
       routes: [
         {
           path: '/',
-          redirect: '/serialno',
+          redirect: '/diskscan',
+        },
+        {
+          path: '/diskscan',
+          name: '1. Diskscan',
+          component: './Diskscan/Diskscan.tsx',
+          icon: 'download'
+        },
+        {
+          path: '/serialno',
+          name: '2. SerialNo',
+          component: './SerialNo/SerialNo.tsx',
+          icon: 'aim'
+        },
+        {
+          path: '/movieimport',
+          name: '3. Movie Import',
+          component: './MovieManager/MovieImport.tsx',
+          icon: 'cloud-download'
         },
         {
           path: '/prefixcutter',
           name: 'PrefixCutter',
           component: './PrefixCutter/PrefixCutter.tsx',
-        },
-        {
-          path: '/serialno',
-          name: 'SerialNo',
-          component: './SerialNo/SerialNo.tsx',
-        },
-        {
-          path: '/movieimport',
-          name: 'Movie Import',
-          component: './MovieManager/MovieImport.tsx'
-        },
-        {
-          path: '/diskscan',
-          name: 'diskscan',
-          component: './Diskscan/Diskscan.tsx',
         },
         // {
         //   path: '/welcome',
