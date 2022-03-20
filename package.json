@@ -6,6 +6,7 @@
   "scripts": {
     "uibuild": "electron-builder --win --x64",
     "startui": "electron ./main.js",
+    "startproductionui": "electron main_production.js",
     "analyze": "cross-env ANALYZE=1 umi build",
     "build": "umi build",
     "deploy": "npm run site && npm run gh-pages",

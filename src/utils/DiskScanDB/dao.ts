@@ -313,3 +313,19 @@ export function saveSerialNo(
     })();
   });
 }
+
+export async function findSameFilename(filename: string) {
+  const scanResult = await loadScanResult(); // 磁盘扫描结果列表
+  const collectionNames = scanResult.map(r => r.collectionName)
+  let ret: any[] = []
+  for( let c = 0;c<collectionNames.length; c++) {
+    const collectionName = collectionNames[c]
+    const diskScanModel = mongoose.model('diskScan', SingleFileSchema, collectionName);
+    const res = await diskScanModel.find({
+      'fileName': filename
+    })
+    res = res.map(_=>_._doc)
+    ret = ret.concat(res)
+  }
+  return ret;
+}
