@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect, useState } from 'react';
 import { connect, DispatchProp } from 'dva';
 import { ConnectState } from '@/models/connect';
-import { fuzzyQueryIdolName, idolMovieType, loadIdolListByPage, loadIdolMovies } from '@/utils/DiskScanDB/dao';
+import { fuzzyQueryIdolName, idolMovieType, loadIdolListByPage, loadIdolMovies, loadIdolListByMovieCount } from '@/utils/DiskScanDB/dao';
 import { AutoComplete, Button, Input, List, Typography } from 'antd'
 import { JavbusIdolType } from '@/utils/DiskScanDB/bean'
 const electron = window.require('electron')
@@ -9,7 +9,8 @@ const electron = window.require('electron')
 type Props = {} & ConnectState;
 function IdolList(props: Props) {
   function goPage(pageNum: number, pageSize: number) {
-    loadIdolListByPage(pageNum, pageSize).then((_data) => {
+    loadIdolListByMovieCount(pageNum, pageSize).then((_data) => {
+  // loadIdolListByPage(pageNum, pageSize).then((_data) => {
       // console.log(_data.docs) // 数据格式
       setIdolList(_data.docs)
       setListTotal(_data.pageinfo.total)
@@ -26,7 +27,7 @@ function IdolList(props: Props) {
     setCompletedIdolNameOptions(options)
   }
   useEffect(() => {
-    goPage(1, 20)
+    goPage(1, 5)
     // queryTheName('里美ゆりあ')
   }, [props.dispatch])
   const [idolList, setIdolList] = useState<Array<JavbusIdolType> | []>([])
@@ -51,20 +52,19 @@ function IdolList(props: Props) {
           bordered
           pagination={{
             onChange: (pageNum: number, pageSize?: number) => {
-              goPage(pageNum, pageSize !== undefined ? pageSize : 20)
+              goPage(pageNum, pageSize !== undefined ? pageSize : 5)
             },
             total: idolListTotal,
             // showTotal:  (total: number, range: [number,number]) => {return `${range[0]}-${range[1]} of ${total} items`}
             responsive: true,
-            defaultPageSize: 20,
+            defaultPageSize: 5,
           }}
           dataSource={idolList}
           renderItem={(_doc) => {
             // console.log(_doc)
             return (
-              <List.Item key={_doc.href} >
-                <Typography.Text>{_doc.name}</Typography.Text>
-                <Button onClick={() => { queryTheName(_doc.name); setQueryName(_doc.name) }}>Query!</Button>
+              <List.Item key={_doc.name} style={{margin:"8px",}}>
+                <Button onClick={() => { queryTheName(_doc.name); setQueryName(_doc.name) }}>{_doc.name} Query!{_doc.m_count}</Button>
               </List.Item>
             )
           }}
@@ -83,12 +83,13 @@ function IdolList(props: Props) {
         </AutoComplete>
         <List
           dataSource={idolMovieList}
-          renderItem={(i) => {
+          renderItem={(i,num) => {
             return (
               <List.Item
                 key={i.serial}
                 style={{ justifyContent: 'space-between' }}
               >
+                <span>No.{num+1}</span>
                 <Typography.Title level={4}>{i.serial}</Typography.Title>
                 {Object.keys(i.diskscan).map(collectionName => {
                   if (i.diskscan[collectionName].length === 0) {

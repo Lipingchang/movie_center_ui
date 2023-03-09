@@ -197,6 +197,48 @@ export function loadIdolListByPage(pageNum: number, pageSize: number): Promise<i
       });
   });
 }
+
+export function loadIdolListByMovieCount(pageNum: number, pageSize: number): Promise<idolListType>{
+  return new Promise((resolve, reject) => {
+    const javbusMovieModel = mongoose.model('javbusMovie', JavbusIdolSchema, 'javbus_movie');
+    javbusMovieModel.aggregate([{
+        $facet: {
+          docs:[
+            {"$unwind":"$idol"},    // 把idol字段拍平
+            {
+              "$group":
+                {"_id":"$idol.id","m_count":{$sum:1},'name':{$first: "$idol.name"}} // 按照idol.id字段分组后 计算出场次数
+            },
+            {"$sort": {"m_count":-1}},  // 按照出场次数排序
+            {"$skip": (pageNum - 1) * pageSize},  // 分页
+            {"$limit": pageSize},
+            {"$lookup":{                              
+              let: {"userObjId":{$toObjectId: "$_id"}},   // 在group时新加入的_id字段转换成obj 并命名为userObjId
+              pipeline: [{"$match":{$expr:{$eq:["$_id", "$$userObjId"]}}}], //在idol表中 查找_id和userObjId相同的
+              from: "javbus_idol", 
+              as: 'detail'
+            }}	
+          ],
+          pageinfo: [{ $group: { _id: null, total: { $sum: 1 } } }]
+        }
+      }])
+      .then((docs) => {
+        console.log(docs)
+        docs = docs.map((doc) => doc);
+        let total = docs[0].pageinfo[0].total;
+        docs[0].pageinfo = {
+          pageSize,
+          pageNum,
+          total,
+        };
+        resolve(docs[0]);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
 export function fuzzyQueryIdolName(fuzzyStr:string):Promise<Array<string>> {
   return new Promise((resolve,reject)=>{
     const javbusIdolModel = mongoose.model('javbusIdol', JavbusIdolSchema, 'javbus_idol');
