@@ -156,8 +156,9 @@ export function loadJavMovieFiles(collectionName: string): Promise<Array<SingleF
   });
 }
 
+export type idolListEleType = {m_count:number; name:string; detail: JavbusIdolType}
 export type idolListType = {
-  docs: Array<JavbusIdolType>;
+  docs: Array<idolListEleType>;
   pageinfo: {
     pageSize: number;
     pageNum: number;
@@ -239,13 +240,13 @@ export function loadIdolListByMovieCount(pageNum: number, pageSize: number): Pro
   });
 }
 
-export function fuzzyQueryIdolName(fuzzyStr:string):Promise<Array<string>> {
+export function fuzzyQueryIdolName(fuzzyStr:string):Promise<Array<{value:string, detail:JavbusIdolType}>> {
   return new Promise((resolve,reject)=>{
     const javbusIdolModel = mongoose.model('javbusIdol', JavbusIdolSchema, 'javbus_idol');
     javbusIdolModel
       .find({'name': new RegExp(".*"+fuzzyStr+".*")})
       .then((docs) => {
-        docs = docs.map((doc) => doc.name);
+        docs = docs.map((doc) => {return {value:doc.name, detail:doc}});
         resolve(docs);
       })
       .catch((error) => {

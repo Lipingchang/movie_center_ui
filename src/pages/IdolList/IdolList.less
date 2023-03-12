@@ -1,0 +1,49 @@
+.MovieListImg {
+  max-width: 200px;
+} 
+.MovieListImg:hover {
+  transform: scale(2) translateX(-20px);
+  border: green 5px solid;
+}
+.MovieSamplePic {
+  // width: 100px;
+  flex-shrink: 1;
+}
+.MovieSampleCont {
+  display: flex;
+}
+.MovieSampleItem {
+  flex-shrink: 1;
+  margin-right: 2px;
+}
+.MovieSamplePic {
+  width: 100%;
+}
+// .MovieSamplePic:hover {
+//   transform: translateY(10) scale(5);
+//   border: green 5px solid;
+// }
+.slideItem {
+  display:flex !important;
+  justify-content: center;
+}
+
+:global {
+  .ant-modal-content, .ant-modal-header {
+    background-color: cadetblue !important;
+    border: 0;
+  }
+  .slick-dots.slick-dots-bottom {
+    background: black;
+    box-shadow: 0px 0px 5px 5px black;
+  }
+  .slick-dots.slick-dots-bottom li {
+    background-color: white;
+    height: 20px;
+  }
+  .slick-dots.slick-dots-bottom li button{
+    background-color: white;
+    height: 20px;
+    border: red 2px solid;
+  }
+}
