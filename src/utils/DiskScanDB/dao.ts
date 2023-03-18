@@ -8,6 +8,7 @@ import {
   JavbusIdolType,
   JavbusIdolSchema,
   JavbusMovieSchema,
+  JavbusMovieType,
 } from './bean';
 import { _SingleFileType } from '../../pages/SerialNo/SerialNo';
 import fakepath from 'path';
@@ -116,8 +117,11 @@ export function loadMovieFiles(collectionName: string): Promise<Array<SingleFile
 async function _searchMovieFiles(collectionName:string,target: string): Promise<Array<SingleFileType>> {
   return new Promise((resolve, reject) => {
     const diskScanModel = mongoose.model('diskScan', SingleFileSchema,collectionName);
+    let targets = target.split(" ")// 去掉空格
+    targets = targets.filter(i => i&&i.trim())
+    let target_reg = targets.join(".*")
     diskScanModel
-      .find({ isMovieFile: true, filePath: new RegExp('.*' + target + '.*','i') }) // 忽略大小写
+      .find({ isMovieFile: true, filePath: new RegExp('.*' + target_reg + '.*','i') }) // 忽略大小写
       .then((docs) => {
         resolve(docs.map((doc) => doc._doc));
       })
@@ -224,7 +228,7 @@ export function loadIdolListByMovieCount(pageNum: number, pageSize: number): Pro
         }
       }])
       .then((docs) => {
-        console.log(docs)
+        // console.log(docs)
         docs = docs.map((doc) => doc);
         let total = docs[0].pageinfo[0].total;
         docs[0].pageinfo = {
@@ -283,14 +287,24 @@ db.getCollection('javbus_movie')
   },
 ])
 */
-
+type MagnetType = {
+  magnet_link: string;
+  size: string;
+  date:string;
+}
 export type idolMovieType = {
   serial: string;
   cover: string;
-  diskscan: {
-    [key: string]: Array<SingleFileType>;
-  };
+  // diskscan: {
+  //   [key: string]: Array<SingleFileType>;
+  // };
+  idol: Array<JavbusIdolType>;
+  idol_count: number;
+  release_date: string;
+  disk_records: Array<SingleFileType>;
+  record_c: number;
   sample_pic: Array<{ name: string }>;
+  magnet: Array<MagnetType>;
 };
 export async function loadIdolMovies(IdolName: string): Promise<Array<idolMovieType>> {
   const scanResult = await loadScanResult(); // 磁盘扫描结果列表
@@ -320,6 +334,69 @@ export async function loadIdolMovies(IdolName: string): Promise<Array<idolMovieT
         reject(error);
       });
   });
+}
+
+type idolMovieListType = {
+  docs: Array<idolMovieType>;
+  pageinfo: {
+    total: number;
+  }
+}
+export async function loadIdolMoviesByPage(IdolName: string, pageSize: number, pageNum: number): Promise<idolMovieListType> {
+  const scanResult = await loadScanResult(); // 磁盘扫描结果列表
+
+  // 把javbus的电影列表的番号 和 所有扫描结果左连接，连接结果储存到 diskscan 的对象中
+  const lookupList = scanResult.map((c) => ({
+    $lookup: {
+      from: c.collectionName,
+      localField: 'serial',
+      foreignField: 'serialNo.id',
+      as: 'diskscan.' + c.collectionName, // 都在 diskscan 属性下
+    },
+  }));
+
+  // 把 diskscan 对象里面的每个 scanResult 中包含的电影 都拼接到同一个数组中
+  const unionScanResult = {
+    $setUnion: scanResult.map((c)=> '$diskscan.' + c.collectionName)
+  }
+
+  return new Promise((resolve, reject) => {
+    const javbusMovieModel = mongoose.model('javbusmovie', JavbusMovieSchema, 'javbus_movie');
+    javbusMovieModel
+      .aggregate([{
+        $facet: {
+          docs:[
+            {"$project":{"serial":1,  "idol_count": {"$size": "$idol"}, "idol":1, "cover": 1, "sample_pic":1, "release_date": 1, "magnet": 1}},
+            {"$match": { "idol": { "$elemMatch": { "name": IdolName } } }},
+            ...lookupList,
+            {"$project": {"serial":1,  "idol_count": 1, "idol":1, "cover": 1, "sample_pic":1, "release_date": 1, "disk_records": unionScanResult, "magnet": 1 }},
+            {"$project": {"serial":1,  "idol_count": 1, "idol":1, "cover": 1, "sample_pic":1, "release_date": 1, "disk_records":1, "record_c":{"$size":"$disk_records"}, "magnet": 1}},
+            {"$sort": {"idol_count": 1, "record_c":-1, "release_date": -1,}},  // 如果要按照在 磁盘上存储的文件数 排序 要滞后release_data 
+            {"$skip": (pageNum - 1) * pageSize},
+            {"$limit": pageSize}
+          ],
+          pageinfo: [
+            {"$match": { "idol": { "$elemMatch": { "name": IdolName } } }},
+            { $group: { _id: null, total: { $sum: 1 } } }
+          ]
+        }
+      }])
+      .then((docs) => {
+        // console.log(docs)
+        docs = docs.map((doc) => doc);
+        let total = docs[0].pageinfo[0].total;
+        docs[0].pageinfo = {
+          pageSize,
+          pageNum,
+          total,
+        };
+        resolve(docs[0]);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+
 }
 
 async function updateOneMovie(movie: MovieRecordType) {

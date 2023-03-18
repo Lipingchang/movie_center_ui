@@ -1,9 +1,15 @@
+.MovieList1 {
+  display: flex;
+  flex-direction: column;
+}
 .MovieListImg {
-  max-width: 200px;
+  max-width: 150px;
+  max-height: 100px;
 } 
 .MovieListImg:hover {
-  transform: scale(2) translateX(-20px);
+  transform: scale(3) translateX(90px);
   border: green 5px solid;
+  z-index: 10;
 }
 .MovieSamplePic {
   // width: 100px;
@@ -28,6 +34,49 @@
   justify-content: center;
 }
 
+.noMovieRecord {
+  background-color: #ef6445a6;
+}
+.havMovieRecord {
+  background-color: #175a2354;
+}
+.idolNameList {
+  width: 180px;
+  height: 100px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  span {
+    border: 1px red solid;
+    border-radius: 2px;
+    background-color: aliceblue;
+    margin:2px;
+    padding: 2px;
+    height: fit-content;
+  }
+}
+.goMovieBtnList {
+  width: 220px;
+  display: flex;
+  flex-wrap: wrap;
+  button {
+    padding: 0px 5px;
+    margin: 5px;
+    width: 100px;
+    overflow: hidden;
+  }
+}
+.magnetList {
+  height: 155px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  place-items: flex-start;
+}
+
 :global {
   .ant-modal-content, .ant-modal-header {
     background-color: cadetblue !important;
@@ -45,5 +94,28 @@
     background-color: white;
     height: 20px;
     border: red 2px solid;
+  }
+  .ant-list-item {
+    border-radius: 10px;
+    padding: 5px;
+    margin-bottom: 3px;
+    justify-content: flex-start;
+    // div {
+    //   margin-right: 3px;
+    // }
+  }
+  .FuzzySearchFileCardClassName {
+    position: fixed;
+    width: 250px;
+    height: 500px;
+    right: 50px;
+    box-shadow: 0 0 10px 10px;
+    z-index: 100;
+    top: 200px;
+    background-color: white;
+    overflow-y: scroll;
+  }
+  .noFuzzySearchFileCardClassName {
+    display: none;
   }
 }

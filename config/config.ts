@@ -42,7 +42,7 @@ export default defineConfig({
         {
           path: '/diskscan',
           name: '1. Diskscan',
-          component: './Diskscan/Diskscan.tsx',
+          component: './DiskScan/Diskscan.tsx',
           icon: 'download'
         },
         {

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { connect, DispatchProp } from 'dva';
 import { ConnectState } from '@/models/connect';
 import { Button, Card, List, Form, Input, Typography } from 'antd';
@@ -7,23 +7,39 @@ import { useState } from 'react';
 import { SingleFileType } from '@/utils/DiskScanDB/bean';
 const electron = window.require('electron')
 
-type Props = {} & ConnectState;
+type Props = {
+  fuzzySearchStr: string;
+  className: string;
+} & ConnectState;
 function FuzzySearchFileCard(props: Props) {
   const [fileList, setFileList] = useState<Array<SingleFileType>>([])
   const [searchValue, setSearchValue] = useState<string>('')
-  return (<>
+  function doFuzzySearch(value: string){
+    setSearchValue(value)
+    searchMovieFiles(value)
+      .then(_data => setFileList(_data))
+  }
+  useEffect(()=>{
+    console.log(props.fuzzySearchStr)
+    if (props.fuzzySearchStr) {
+      doFuzzySearch(props.fuzzySearchStr)
+    }
+  },[props.fuzzySearchStr]) 
+
+  return (<div className={props.className ? props.className : ""}>
     <Card
       title="模糊搜索文件名字"
     >
-      <Input.Search onSearch={(value) => {
-        setSearchValue(value)
-        searchMovieFiles(value)
-          .then(_data => setFileList(_data))
+      <Input.Search
+        value={searchValue} 
+        onChange={(v)=>{setSearchValue(v.target.value)}}
+        onSearch={(value) => {
+        doFuzzySearch(value)
       }}></Input.Search>
       <List
         dataSource={fileList}
-        renderItem={(item) => {
-          return (<List.Item>
+        renderItem={(item, index) => {
+          return (<List.Item key={index}>
             <WithHighlight p={item.fileName} target={searchValue} />
             <Button onClick={()=>{
               electron.shell.openPath(item.filePath)
@@ -33,7 +49,7 @@ function FuzzySearchFileCard(props: Props) {
       />
       {/* <WithHighlight p="hhhhhh" target="hh" /> */}
     </Card>
-  </>)
+  </div>)
 }
 
 

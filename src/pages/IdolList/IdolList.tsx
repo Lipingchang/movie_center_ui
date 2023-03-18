@@ -12,6 +12,7 @@ const path: typeof fakePath = window.require('path')
 import fakeChildProcess from 'child_process'
 const child_process: typeof fakeChildProcess = window.require('child_process')
 import styles from './IdolList.less'
+import IdolMovieQuery from './IdolMovieQuery';
 
 
 
@@ -26,6 +27,7 @@ function IdolList(props: Props) {
     })
   }
   function queryTheName(name: string) {
+    return;
     setMovieListLoading(true)
     loadIdolMovies(name)
       .then(list => setIdolMovieList(list))
@@ -49,10 +51,7 @@ function IdolList(props: Props) {
   const [idolMovieList, setIdolMovieList] = useState<Array<idolMovieType>>([])
   const [completedIdolNameOptions, setCompletedIdolNameOptions] = useState<Array<{value:string, detail:JavbusIdolType}>>([])
   const [movieListLoading, setMovieListLoading] = useState<boolean>(false);
-  const [isShowMoviePicOpen, setShowPic] = useState<boolean>(false)
-  const [showMoviePicList, setShowPicList] = useState<Array<any>>([])
-  const [previewInModal, setPreViewInModal] = useState(false)
-  const sliderRef = useRef<any>(null)
+
 
   return (
     <div>
@@ -89,6 +88,7 @@ function IdolList(props: Props) {
         >
         </List>
       </div>
+      <IdolMovieQuery idolDetail={queryDetail}/>
       <div>
         <Typography.Title>Find Idol Presentations:</Typography.Title>
         <Typography.Paragraph>{queryDetail?.name}</Typography.Paragraph>
@@ -120,7 +120,7 @@ function IdolList(props: Props) {
                 <span>No.{num+1}</span>
                 <Typography.Title level={4}>{i.serial}</Typography.Title>
                 <img className={styles.MovieListImg} src={`myfile:///cache/javbus_pic_cache/${i.cover}`}></img>
-                <Button onClick={()=>{setShowPic(true);setShowPicList(i.sample_pic);console.log(i.sample_pic)}}>load sample pic</Button>
+                {/* <Button onClick={()=>{setShowPic(true);setShowPicList(i.sample_pic);console.log(i.sample_pic)}}>load 《{i.sample_pic.length}》sample pic</Button> */}
                 {/* {Object.keys(i.diskscan).map(collectionName => {
                   if (i.diskscan[collectionName].length === 0) {
                     return <div key={collectionName}>none</div>
@@ -134,38 +134,7 @@ function IdolList(props: Props) {
             )
           }}></List>
       </div>
-      <Modal 
-        title="Basic Modal" 
-        visible={isShowMoviePicOpen} width={"90%"}
-        footer={null} 
-        onCancel={()=>{setShowPic(false)}}
-      >
-        <div className={styles.MovieSampleCont}>
-          {showMoviePicList.map((i,index)=>{
-            return (
-              <div className={styles.MovieSampleItem} onMouseEnter={()=>{sliderRef.current.goTo(index, false)}}>
-                <img className={styles.MovieSamplePic} src={`myfile:///cache/javbus_pic_cache/${i.name}`} />
-              </div>
-              )
-          })}
-        </div>
-        <Button onClick={()=>{sliderRef.current.prev()}}>go prev</Button>
-        <Button onClick={()=>{sliderRef.current.next()}}>go next</Button>
-        <Carousel
-          ref={sliderRef}
-        >
-          {showMoviePicList.map((i)=>{
-            return (
-              <div className={styles.slideItem}>
-                <img style={{height: "50vh"}} src={`myfile:///cache/javbus_pic_cache/${i.name}`} />
-              </div>
-              )
-          })}
-        </Carousel>
-        <div className={styles.preview}>
-          
-        </div>
-      </Modal>
+
     </div >
   )
 
