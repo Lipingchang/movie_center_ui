@@ -13,128 +13,73 @@ import fakeChildProcess from 'child_process'
 const child_process: typeof fakeChildProcess = window.require('child_process')
 import styles from './IdolList.less'
 import IdolMovieQuery from './IdolMovieQuery';
-
-
+import FuzzyQueryIdolName from './FuzzyQueryIdolName';
+const DefaultPageSize = 20
 
 type Props = {} & ConnectState;
 function IdolList(props: Props) {
   function goPage(pageNum: number, pageSize: number) {
     loadIdolListByMovieCount(pageNum, pageSize).then((_data) => {
-  // loadIdolListByPage(pageNum, pageSize).then((_data) => {
-      // console.log(_data.docs) // 数据格式
+      console.log(_data) // 数据格式
       setIdolList(_data.docs)
       setListTotal(_data.pageinfo.total)
     })
   }
-  function queryTheName(name: string) {
-    return;
-    setMovieListLoading(true)
-    loadIdolMovies(name)
-      .then(list => setIdolMovieList(list))
-      .finally(()=>{
-        setMovieListLoading(false)
-      })
-  }
-  async function fuzzyQueryIdolNameIntoOption(_value:string) {
-    if (_value.length<=0 || _value.includes('\'')) return;    // 去掉输入法
-    let names = await fuzzyQueryIdolName(_value)
-    setCompletedIdolNameOptions(names)
-  }
+
   useEffect(() => {
-    goPage(10, 5)
-    queryTheName('佐藤エル')
+    goPage(1, DefaultPageSize)
   }, [props.dispatch])
   const [idolList, setIdolList] = useState<Array<idolListEleType> | []>([])
   const [idolListTotal, setListTotal] = useState<number>(0)
   // const [queryName, setQueryName] = useState<string>("")
   const [queryDetail, setIdolQuery] = useState<JavbusIdolType>()
-  const [idolMovieList, setIdolMovieList] = useState<Array<idolMovieType>>([])
-  const [completedIdolNameOptions, setCompletedIdolNameOptions] = useState<Array<{value:string, detail:JavbusIdolType}>>([])
-  const [movieListLoading, setMovieListLoading] = useState<boolean>(false);
-
+  // const [idolMovieList, setIdolMovieList] = useState<Array<idolMovieType>>([])
+  // const [movieListLoading, setMovieListLoading] = useState<boolean>(false);
 
   return (
     <div>
-      <div>
-        <List
-          grid={{
-            gutter: 16,
-            xs: 1,
-            sm: 2,
-            md: 4,
-            lg: 4,
-            xl: 6,
-            xxl: 3,
-          }}
-          bordered
+      <div style={{border: "1px black solid", padding: "3px"}}>
+        <Typography.Title level={2}>1. Select a Idol: {queryDetail?.name}</Typography.Title>
+        <FuzzyQueryIdolName // 模糊查询idol名字
+          onSelect={(name, detail)=>{
+            setIdolQuery(detail)
+          }} />
+        {queryDetail?.name ? 
+          (<Button 
+            type='primary' 
+            onClick={()=>{fetchIdolMetaFromJavbus(queryDetail)}}>
+              py 爬取javbus {queryDetail?.name} 信息
+          </Button>) : 
+          (<></>)
+        }
+        <br/>
+        <List       // 按照出场次数 显示idol列表
+          grid={{ gutter: 16, xs: 1, sm: 2, md: 4, lg: 4, xl: 6, xxl: 3, }}
           pagination={{
             onChange: (pageNum: number, pageSize?: number) => {
-              goPage(pageNum, pageSize !== undefined ? pageSize : 5)
+              goPage(pageNum, pageSize ? pageSize : DefaultPageSize)
             },
+            onShowSizeChange: goPage,
             total: idolListTotal,
             // showTotal:  (total: number, range: [number,number]) => {return `${range[0]}-${range[1]} of ${total} items`}
             responsive: true,
-            defaultPageSize: 5,
+            defaultPageSize: DefaultPageSize,
           }}
           dataSource={idolList}
           renderItem={(_doc) => {
             // console.log(_doc)
             return (
               <List.Item key={_doc.name} style={{margin:"8px",}}>
-                <Button onClick={() => { queryTheName(_doc.name); setIdolQuery(_doc.detail[0]) }}>{_doc.name} Query {_doc.m_count}</Button>
+                <Button onClick={() => { setIdolQuery(_doc.detail[0]) }}>{_doc.name} Query {_doc.m_count}</Button>
               </List.Item>
             )
           }}
         >
         </List>
       </div>
-      <IdolMovieQuery idolDetail={queryDetail}/>
-      <div>
-        <Typography.Title>Find Idol Presentations:</Typography.Title>
-        <Typography.Paragraph>{queryDetail?.name}</Typography.Paragraph>
-        {queryDetail?.name ? (<Button onClick={()=>{fetchIdolMetaFromJavbus(queryDetail)}}>爬取javbus {queryDetail?.name} 信息</Button>) : (<></>)}
-        <br/>
-        <AutoComplete   // 模糊查询偶像名字
-          options={completedIdolNameOptions}
-          onSearch={fuzzyQueryIdolNameIntoOption}
-          onSelect={(value,option)=>{
-            // setQueryName()
-            // console.log(option.detail)
-            setIdolQuery(option.detail)
-            queryTheName(value)
-          }}
-          >
-          <Input
-            // onSearch={(value,b) => { setQueryName(value);  }}
-          />
-        </AutoComplete>
-        <List
-          loading={movieListLoading}
-          dataSource={idolMovieList}
-          renderItem={(i,num) => {
-            return (
-              <List.Item
-                key={i.serial}
-                style={{ justifyContent: 'space-between' }}
-              >
-                <span>No.{num+1}</span>
-                <Typography.Title level={4}>{i.serial}</Typography.Title>
-                <img className={styles.MovieListImg} src={`myfile:///cache/javbus_pic_cache/${i.cover}`}></img>
-                {/* <Button onClick={()=>{setShowPic(true);setShowPicList(i.sample_pic);console.log(i.sample_pic)}}>load 《{i.sample_pic.length}》sample pic</Button> */}
-                {/* {Object.keys(i.diskscan).map(collectionName => {
-                  if (i.diskscan[collectionName].length === 0) {
-                    return <div key={collectionName}>none</div>
-                  } else {
-                    return <div key={collectionName}><Button onClick={() => {
-                      electron.shell.openPath(i.diskscan[collectionName][0].filePath)
-                    }}>Go</Button></div>
-                  }
-                })} */}
-              </List.Item>
-            )
-          }}></List>
-      </div>
-
+      <Typography.Title level={2}>2. Find Idol Presentations:</Typography.Title>
+      {/* 查找这个名字的 电影列表 */}
+      <IdolMovieQuery idolDetail={queryDetail}/>  
     </div >
   )
 

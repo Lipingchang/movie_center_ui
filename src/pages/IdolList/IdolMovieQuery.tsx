@@ -1,9 +1,9 @@
 import React, { useReducer, useEffect, useState, useRef } from 'react';
 import { connect, DispatchProp } from 'dva';
 import { ConnectState } from '@/models/connect';
-import { fuzzyQueryIdolName, idolMovieType, loadIdolListByPage, loadIdolMovies, loadIdolListByMovieCount, idolListEleType, loadIdolMoviesByPage } from '@/utils/DiskScanDB/dao';
+import { fuzzyQueryIdolName, idolMovieType, loadIdolMoviesByPage } from '@/utils/DiskScanDB/dao';
 import { AutoComplete, Button, Input, List, Typography, Modal, Carousel, Card, Space, Tooltip, message} from 'antd'
-import { PlaySquareOutlined } from '@ant-design/icons';
+import { PlaySquareOutlined, CloudDownloadOutlined} from '@ant-design/icons';
 import { JavbusIdolType } from '@/utils/DiskScanDB/bean'
 const electron = window.require('electron')
 import fakeFs from 'fs'
@@ -14,6 +14,7 @@ import fakeChildProcess from 'child_process'
 const child_process: typeof fakeChildProcess = window.require('child_process')
 import styles from './IdolList.less'
 import FuzzySearchFileCard from '../DiskScan/FuzzySearchFile'
+const DefaultPageSize = 20
 
 
 type Props = {
@@ -45,7 +46,7 @@ function IdolMovieQuery(props: Props) {
   useEffect(()=>{
     // goPage('桃乃木かな', 4, 5)
     if (props.idolDetail) {
-      goPage(props.idolDetail.name, 1, 5)
+      goPage(props.idolDetail.name, 1, DefaultPageSize)
     }
   }, [props.idolDetail?.name])
 
@@ -61,22 +62,23 @@ function IdolMovieQuery(props: Props) {
         dataSource={movieList}
         pagination={{
           onChange: (pageNum: number, pageSize?: number) => {
-            goPage(idol_name, pageNum, pageSize !== undefined ? pageSize : 5)
+            goPage(idol_name, pageNum, pageSize !== undefined ? pageSize : DefaultPageSize)
           },
           total: movieListTotal,
           // showTotal:  (total: number, range: [number,number]) => {return `${range[0]}-${range[1]} of ${total} items`}
           responsive: true,
-          defaultPageSize: 5,
+          defaultPageSize: DefaultPageSize,
         }}
         renderItem={(i,num) => {
+          const diskHavMovie = i.record_c>0 // 本地磁盘上有此影片
           return (
             <List.Item
               key={i.serial}
-              className={i.record_c>0 ? styles.havMovieRecord : styles.noMovieRecord }
+              className={diskHavMovie ? styles.havMovieRecord : styles.noMovieRecord }
             >
               <div className={styles.MovieList1}>
                 <Typography.Title level={4}>{i.serial}</Typography.Title>
-                <Button size='small'
+                <Button size='small' type={diskHavMovie? 'ghost' : 'primary'}
                   onClick={()=>{
                     setFuzzySearch(i.serial.replaceAll('-', " ")) // 传递给模糊查询的框体
                     if (showFuzzySearchBox>0) { // 如果窗体开着
@@ -98,11 +100,11 @@ function IdolMovieQuery(props: Props) {
                   {i.idol.map((idol)=><span key={idol.name}>{idol.name}</span>)}
                 </div>
               </div>
-              <div className={styles.goMovieBtnList}>
+              { diskHavMovie ? (<div className={styles.goMovieBtnList}>
                 {i.disk_records.map((rr, index)=>{
                   return (
-                    <Tooltip placement="top" title={`${rr.filePath} size:${rr.fileSize}`} key={rr.filePath+index}>
-                      <Button onClick={() => {
+                    <Tooltip placement="left" title={`${rr.filePath} size:${rr.fileSize}`} key={rr.filePath+index}>
+                      <Button size="small" onClick={() => {
                         electron.shell.openPath(rr.fileName)
                       }}>
                         <PlaySquareOutlined />{rr.filePath}
@@ -110,8 +112,8 @@ function IdolMovieQuery(props: Props) {
                     </Tooltip>
                     )
                 })}
-              </div>
-              <div className={styles.magnetList}>
+              </div>) : 
+              (<div className={styles.magnetList}>
                 {i.magnet.map((magnet)=>{
                   let filename_s = magnet.magnet_link.lastIndexOf("dn=")
                   let filename = magnet.magnet_link.slice(filename_s+3)
@@ -122,10 +124,10 @@ function IdolMovieQuery(props: Props) {
                         navigator.clipboard.writeText(magnet.magnet_link)
                         message.info('磁链已经复制');
                       }}
-                    >{`${magnet.size} ${magnet.date} ${filename} `}</Button>
+                    ><CloudDownloadOutlined />{`${magnet.size} ${magnet.date} ${filename} `}</Button>
                   )
                 })}
-              </div>
+              </div>)}
               <div>TODO 是否已经加入下载机队列？</div>
             </List.Item>
           )

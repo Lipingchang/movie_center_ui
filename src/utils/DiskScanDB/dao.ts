@@ -202,7 +202,12 @@ export function loadIdolListByPage(pageNum: number, pageSize: number): Promise<i
       });
   });
 }
-
+/**
+ *  用于替换 loadIdolListByPage, 根据 演员出现在 javbus movie中的次数 排序
+ * @param pageNum 从1开始
+ * @param pageSize 每页大小
+ * @returns
+ */
 export function loadIdolListByMovieCount(pageNum: number, pageSize: number): Promise<idolListType>{
   return new Promise((resolve, reject) => {
     const javbusMovieModel = mongoose.model('javbusMovie', JavbusIdolSchema, 'javbus_movie');
@@ -212,7 +217,7 @@ export function loadIdolListByMovieCount(pageNum: number, pageSize: number): Pro
             {"$unwind":"$idol"},    // 把idol字段拍平
             {
               "$group":
-                {"_id":"$idol.id","m_count":{$sum:1},'name':{$first: "$idol.name"}} // 按照idol.id字段分组后 计算出场次数
+                {"_id":{"$toString": "$idol.id"},"m_count":{$sum:1},'name':{$first: "$idol.name"}} // 按照idol.id字段分组后 计算出场次数
             },
             {"$sort": {"m_count":-1}},  // 按照出场次数排序
             {"$skip": (pageNum - 1) * pageSize},  // 分页
@@ -224,7 +229,11 @@ export function loadIdolListByMovieCount(pageNum: number, pageSize: number): Pro
               as: 'detail'
             }}	
           ],
-          pageinfo: [{ $group: { _id: null, total: { $sum: 1 } } }]
+          pageinfo: [
+            {"$unwind":"$idol"},
+            {"$group":{"_id":{"$toString": "$idol.id"},}},
+            {"$group":{"_id":null, "total":{$sum: 1}}}
+          ]
         }
       }])
       .then((docs) => {

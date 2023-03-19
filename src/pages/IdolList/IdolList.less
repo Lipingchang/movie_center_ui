@@ -41,12 +41,15 @@
   background-color: #175a2354;
 }
 .idolNameList {
-  width: 180px;
+  width: 160px;
   height: 100px;
-  overflow-y: scroll;
+  overflow-y: hidden;
   overflow-x: hidden;
   display: flex;
   flex-wrap: wrap;
+  border: 1px black solid;
+  border-radius: 4px;
+  margin: 5px;
   span {
     border: 1px red solid;
     border-radius: 2px;
@@ -56,25 +59,42 @@
     height: fit-content;
   }
 }
+.idolNameList:hover {
+  overflow-y: scroll;
+}
 .goMovieBtnList {
-  width: 220px;
+  height: 155px;
+  width: 200px;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  place-items: flex-start;
+  border: 1px black solid;
+  border-radius: 4px;
+  margin: 5px;
   button {
     padding: 0px 5px;
     margin: 5px;
-    width: 100px;
-    overflow: hidden;
   }
+}
+.goMovieBtnList:hover {
+  overflow-y: scroll;
 }
 .magnetList {
   height: 155px;
   width: 200px;
   display: flex;
   flex-direction: column;
-  overflow-y: scroll;
+  overflow-y: hidden;
   overflow-x: hidden;
   place-items: flex-start;
+  border: 1px black solid;
+  border-radius: 4px;
+  margin: 5px;
+}
+.magnetList:hover {
+  overflow-y: scroll;
 }
 
 :global {
