@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect, useState, useRef } from 'react';
 import { connect, DispatchProp } from 'dva';
 import { ConnectState } from '@/models/connect';
-import { fuzzyQueryIdolName, idolMovieType, loadIdolMoviesByPage } from '@/utils/DiskScanDB/dao';
+import { fuzzyQueryIdolName, idolMovieType, loadIdolMoviesByPage, setJavbusMovieDownloading } from '@/utils/DiskScanDB/dao';
 import { AutoComplete, Button, Input, List, Typography, Modal, Carousel, Card, Space, Tooltip, message} from 'antd'
 import { PlaySquareOutlined, CloudDownloadOutlined} from '@ant-design/icons';
 import { JavbusIdolType } from '@/utils/DiskScanDB/bean'
@@ -14,6 +14,7 @@ import fakeChildProcess from 'child_process'
 const child_process: typeof fakeChildProcess = window.require('child_process')
 import styles from './IdolList.less'
 import FuzzySearchFileCard from '../DiskScan/FuzzySearchFile'
+import moment from 'moment';
 const DefaultPageSize = 20
 
 
@@ -113,22 +114,36 @@ function IdolMovieQuery(props: Props) {
                     )
                 })}
               </div>) : 
-              (<div className={styles.magnetList}>
-                {i.magnet.map((magnet)=>{
-                  let filename_s = magnet.magnet_link.lastIndexOf("dn=")
-                  let filename = magnet.magnet_link.slice(filename_s+3)
-                  filename = window.decodeURIComponent(filename)
-                  return (
-                    <Button key={magnet.magnet_link} size="small"
-                      onClick={()=>{
-                        navigator.clipboard.writeText(magnet.magnet_link)
-                        message.info('磁链已经复制');
-                      }}
-                    ><CloudDownloadOutlined />{`${magnet.size} ${magnet.date} ${filename} `}</Button>
-                  )
-                })}
+              (<div style={{display: 'flex'}}>
+                <div className={styles.magnetList}>
+                  {i.magnet.map((magnet)=>{
+                    let filename_s = magnet.magnet_link.lastIndexOf("dn=")
+                    let filename = magnet.magnet_link.slice(filename_s+3)
+                    filename = window.decodeURIComponent(filename)
+                    return (
+                      <Button key={magnet.magnet_link} size="small"
+                        onClick={()=>{
+                          navigator.clipboard.writeText(magnet.magnet_link)
+                          message.info('磁链已经复制');
+                        }}
+                      ><CloudDownloadOutlined />{`${magnet.size} ${magnet.date} ${filename} `}</Button>
+                    )
+                  })}
+                </div>
+                {i.downloadPCstartDate ? 
+                  <div className={styles.inDownloadListText}>已经进入下载队列 {moment(i.downloadPCstartDate).format('LLL')}</div> :
+                  <Button onClick={()=>{
+                    setJavbusMovieDownloading(i._id)
+                      .then(()=>{
+                        message.success('加入成功')
+                        i.downloadPCstartDate = Date.now()
+                        let refreshArray = [...movieList]
+                        setMovieList(refreshArray)
+                      })
+                      .catch((err)=>{message.error('加入失败'+JSON.stringify(err))})
+                  }}>加入下载机队列</Button>
+                }
               </div>)}
-              <div>TODO 是否已经加入下载机队列？</div>
             </List.Item>
           )
         }}

@@ -15,6 +15,7 @@ import fakepath from 'path';
 const path: typeof fakepath = window.require('path');
 import fakemongoose, { Mongoose } from 'mongoose';
 import { ObjectID } from 'bson';
+import { UpdateWriteOpResult } from 'mongodb';
 const mongoose: typeof fakemongoose = window.require('mongoose');
 
 // 把查找出来的 普通文件 和 movie文件 合并后 保存到数据库中
@@ -314,6 +315,8 @@ export type idolMovieType = {
   record_c: number;
   sample_pic: Array<{ name: string }>;
   magnet: Array<MagnetType>;
+  _id: ObjectID;
+  downloadPCstartDate: number;
 };
 export async function loadIdolMovies(IdolName: string): Promise<Array<idolMovieType>> {
   const scanResult = await loadScanResult(); // 磁盘扫描结果列表
@@ -375,11 +378,11 @@ export async function loadIdolMoviesByPage(IdolName: string, pageSize: number, p
       .aggregate([{
         $facet: {
           docs:[
-            {"$project":{"serial":1,  "idol_count": {"$size": "$idol"}, "idol":1, "cover": 1, "sample_pic":1, "release_date": 1, "magnet": 1}},
+            {"$project":{"serial":1,  "idol_count": {"$size": "$idol"}, "idol":1, "cover": 1, "sample_pic":1, "release_date": 1, "magnet": 1, "downloadPCstartDate": 1}},
             {"$match": { "idol": { "$elemMatch": { "name": IdolName } } }},
             ...lookupList,
-            {"$project": {"serial":1,  "idol_count": 1, "idol":1, "cover": 1, "sample_pic":1, "release_date": 1, "disk_records": unionScanResult, "magnet": 1 }},
-            {"$project": {"serial":1,  "idol_count": 1, "idol":1, "cover": 1, "sample_pic":1, "release_date": 1, "disk_records":1, "record_c":{"$size":"$disk_records"}, "magnet": 1}},
+            {"$project": {"serial":1,  "idol_count": 1, "idol":1, "cover": 1, "sample_pic":1, "release_date": 1, "disk_records": unionScanResult, "magnet": 1, "downloadPCstartDate": 1 }},
+            {"$project": {"serial":1,  "idol_count": 1, "idol":1, "cover": 1, "sample_pic":1, "release_date": 1, "disk_records":1, "record_c":{"$size":"$disk_records"}, "magnet": 1, "downloadPCstartDate": 1}},
             {"$sort": {"idol_count": 1, "record_c":-1, "release_date": -1,}},  // 如果要按照在 磁盘上存储的文件数 排序 要滞后release_data 
             {"$skip": (pageNum - 1) * pageSize},
             {"$limit": pageSize}
@@ -457,4 +460,22 @@ export async function findSameFilename(filename: string) {
     ret = ret.concat(res)
   }
   return ret;
+}
+
+// 没有下载的影片 在手动加入下载机 的队列后 手动改正下影片的属性 下次刷到时 可以不下
+export async function setJavbusMovieDownloading(movieid: ObjectID) {
+  return new Promise((resolve, reject) => {
+    const javbusMovieModel = mongoose.model('javbusmovie', JavbusMovieSchema, 'javbus_movie');
+    console.log(movieid)
+    javbusMovieModel.update(
+      {_id: movieid.toHexString() }, 
+      {"$set":{'downloadPCstartDate': Date.now()}
+    })
+    .then((wres)=>{
+      wres.ok > 0 ? resolve(wres.ok) : reject(wres)
+    })
+    .catch((error)=>{
+      reject(error)
+    })
+  })
 }

@@ -101,9 +101,11 @@ export type JavbusMovieType = {
   // lab: Array<{name:string,href:string,id:string}>,
   idol: Array<JavbusIdolType>,
   sample_pic: Array<{name:string,href:string}>
+  downloadPCstartDate: number;
 }
 export const JavbusMovieSchema = new mongoose.Schema({
   serial:String,
   cover:String,
+  downloadPCstartDate: Number,
 })
 /********************************************************************************************************************* */
