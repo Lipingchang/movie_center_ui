@@ -5,6 +5,7 @@ yarn startui # 启动electron
 ```
 # 文件
 src/pages/下面
+保存了一些数据库的运维查询语句在 mongodb中，用客户端可以查看
 
 # 进度
 - 扫描磁盘文件
